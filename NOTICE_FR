@@ -1,0 +1,161 @@
+                                      COMMENT JOUER À ROBOTSWAR
+
+
+RÈGLES :
+
+Chaque joueur devra fournir un code pour son robot. Quand un jeu est lancé, chaque robot agira en conséquence.
+Un jeu peut héberger au maximum 50 joueurs à la fois.
+
+Un robot peut faire l'une de ces quatre actions : tirer à une coordonnée donnée (si elle est vers l'avant), avancer (d'une ou deux cases vers l'avant ou vers l'une des deux cases diagonales avant), se tourner vers une direction donnée ou encore passer son tour s'il veut juste se reposer.
+Au commencement d'une partie, chaque robot commence avec 10 vie et 6 cellules d'énergie et est placer sur une aire de retour. Le but des robots est d'avoir amassé le plus de butin à la fin de la partie.
+Votre robot peut ramasser des butins dispersés aléatoirement sur la carte et les protéger en les plaçant dans une aire de retour. Tous les butins n'ont pas la même valeur (elle s'étale de 1 à 10).
+Si votre robot parvient à toucher un ennemi, tous les butins que transportait cet ennemi (soit tous ceux qui n'avait pas été mis dans une aire de retour), reste sur place et l'ennemi est téléporté ailleurs dans le jeu au hasard avec 0 d'énergie, ou disparaît s'il n'avait plus de vie. Il ne pourra donc plus rien faire pendant le reste du tour. Votre robot est libre d'aller ramasser son du.
+À chaque nouveau tour, votre robot récupère 2 cellules d'énergie (ou 3 s'il avait passé son tour).
+Aller à une aire de retour rechargera complètement votre robot.
+
+La partie se finit s'il n'y a plus qu'un robot en vie ou lorsque le nombre de tours maximums est atteint.
+
+Une fois que tous les joueurs ont fini leur code, lancez juste le jeu en tapant "make" puis "./robotswar" sur votre console et vous pourrez voir vos robots en action ! Pendant le jeu un robot est représenté par un ^, >, v ou < en fonction de sa direcction, un butin est un $, une aire de retour un @ et les = sont des murs.
+
+
+COMMENT FOURNIR UN CODE À SON ROBOT :
+
+Pour donner un code à son robot, vous devez l'écrire dans un fichier texte, puis le sauver dans le dossier "robots" de ce programme. Votre fichier devra s'appeler nom_de_votre_robot.robot
+
+Chaque mot devra être séparé par un espace, une tabulation ou un retour à la ligne.
+
+Chaque action de votre robot sera ajouté à une file d'actions de tous les robots du jeu.
+Plus votre action est rapide, plus vous avez de chance que votre robot agisse en premier. La rapidité d'une action est déterminée par l'énergie qui restera à votre robot après l'avoir faite.
+À la fin de cette notice, vous pourrez voir combien de cellules d'énergie chaque action consomme.
+
+Une fois que votre robot a reçu une action à faire ou que votre code s'est terminé, votre robot ne fera plus rien d'autre jusqu'à son prochain tour.
+L'énergie de votre robot va également diminuer au fur et à mesure que le temps passe, donc faîtes attention à ce que votre code ne prenne pas trop de temps à être parcouru non plus !
+
+Si vous dîtes à votre robot de faire quelque chose mais qu'il ne peut pas, il ne le fera pas. Donc vous perdrez votre tour.
+Un robot à son propre champ de vision, pour savoir ce qu'il pourra voir ou non, allez voir l'image 2. 
+
+
+  Comment déclarer une variable :
+var nom_de_la_variable
+
+Le nom d'une variable doit commencer par une lettre et contenir uniquement des lettres, chiffre et tiret du bas.
+
+  Comment assigner une valeur à une variable :
+nom_de_la_variable = valeur
+
+Attention, l'assignation doit se faire séparément de la déclaration
+
+  Syntaxe d'une condition :
+valeur1 == valeur2 (test si la valeur1 est égale à la valeur2)
+valeur1 != valeur2 (test si la valeur1 est différente de la valeur2)
+valeur1 < valeur2 (test si la valeur1 est plus petite que la valeur2)
+valeur1 > valeur2 (test si la valeur1 est grande que la valeur2)
+valeur1 <= valeur2 (test si la valeur1 est plus petite que ou égale à la valeur2)
+valeur1 >= valeur2 (test si la valeur1 est plus grande que ou égale à la valeur2)
+|| et && vous permet d'utiliser des ET et OU logiques. La priorité est de gauche à droite.
+
+  Comment faire quelque chose si une condition est vraie :
+if condition
+	choses_à_faire
+endif
+
+  Comment faire quelque chose en boucle tant qu'une condition est vraie :
+while cond
+	choses_à_faire
+endwhile
+
+  Comment arrêter une boucle avant que sa condition ne soit fausse :
+break
+
+  Comment passer son tour :
+Snooze
+
+  Comment connaître le contenu d'une case (voir les valeur prédéfinies pour connaître les différents contenus possibles)
+Look numéro_ligne numéro_colonne (les numéros des lignes et des colonnes sont en rapport avec la position et l'orientation de votre robot, voir l'image 1)
+
+  Comment faire avancer votre robot :
+Go direction (voir les valeurs prédéfinies pour connaître les directions parmi lesquelles vous pouvez choisir)
+
+N'oubliez pas que si votre robot essaye d'aller à une case qui n'ait pas libre (ou de passer par une), il perdra son tour.
+
+  Comment faire tirer son robot sur une case :
+Shoot numéro_ligne numéro_colonne
+
+N'oubliez pas que s'il y a un mur entre vous et la case sur laquelle vous tirez, le mur arrêtera la balle.
+
+  Comment faire tourner votre robot :
+TurnAround direction (voir les valeurs prédéfinies pour connaître les directions parmi lesquelles vous pouvez choisir)
+
+  Si vous devez faire un calcul, vous devez écrire votre expression arithmétique tout attaché (ex : 2+3*(3-2)/4 ).
+
+
+  Valeurs prédéfinies :
+
+GAMELIMIT : la case que vous regardez est en dehors des limites du jeu
+NORESULT : vous ne pouvez pas voir ce qu'il y a sur cette case (soit un mur bloque la vision de votre robot, soit elle n'est pas dans son champ de vision du tout)
+NOTHING : cette case est vide
+WALL : il y a un mur sur cette case
+TREASURE : il y a un butin sur cette case
+BASE : cette case contient une aire de retour
+BOT : il y a un robot ennemi sur cette case
+
+RIGHT : fait se tourner à droite votre robot avec TurnAround ou aller sur la case diagonale-avant-droite avec Go
+LEFT : fait se tourner à gauche votre robot avec TurnAround ou aller sur la case diagonale-avant-gauche avec Go
+BACK : fait se retourner vote robot avec TurnAround
+FORWARD : fait aller votre robot sur la case devant lui avec Go
+SPRINT : fait aller votre robot sur la deuxième case devant lui avec Go
+
+VISIONMAX : la distance de vision (et de tir) de votre robot, en nombre de cases
+
+Life : combien de vie reste-t-il à votre robot
+Score : le nombre de butin transporté par votre robot (seulement ceux qu'il n'a pas déposé dans une aire de retour)
+Energy : l'énergie qu'il reste à votre robot
+
+
+Cellules d'énergie consommées par action :
+
+• Tirer -3
+• Avancer (diagonalement or tout droit de 2 cases) -4
+• Avancer (tout droit) -2
+• Se tourner -1
+• Passer son tour +1
+
+
+IMAGES :
+
+  Image 1, numéro de ligne et colonne par rapport à votre robot :
+
+[3,-3]	[3,-2]	[3,-1]	[3,0]  [3,1]	[3,2]  [3,3]
+		    [2,-2]	[2,-1]	[2,0]  [2,1]	[2,2]
+				        [1,-1]	[1,0]  [1,1]
+		            				[0,0]
+		            				  ^
+		            				  |
+		            	Votre robot est ici
+
+[numéro_ligne,numéro_colonne]
+
+
+ Image 2, Champ de vision d'un robot :
+
+   -11  -10 -9  -8  -7  -6  -5  -4  -3  -2  -1   0   1   2   3   4   5   6   7   8   9  10  11  
+ 11 [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+ 10 [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X]
+  9 [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X]
+  8 [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [=] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [X]
+  7 [X] [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [X] [X]
+  6 [X] [X] [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [X] [X] [X]
+  5 [X] [X] [X] [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [X] [X] [X] [X]
+  4 [X] [X] [X] [X] [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [X] [X] [X] [X] [X]
+  3 [X] [X] [X] [X] [X] [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [X] [X] [X] [X] [X] [X] [X] [X]
+  2 [X] [X] [X] [X] [X] [X] [X] [X] [X] [ ] [ ] [ ] [ ] [ ] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+  1 [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [ ] [ ] [ ] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+  0 [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X][BOT][X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+ -1 [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+ -2 [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+ -3 [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X] [X]
+
+ [ ] = peut voir
+ [X] = ne peut pas voir
+ [=] = mur
+ [BOT] = robot

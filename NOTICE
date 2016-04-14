@@ -1,0 +1,164 @@
+                                      HOW TO PLAY A GAME OF ROBOTSWAR
+
+
+RULES :
+
+Each player with provide a code for its robot. When a game is started, each robot will act by following what it says.
+A game can have a maximum of 50 players.
+
+A robot can do one of four things : shoot to a coordinate (if it is forward), go forward (to the case directly in front of it, the one just after or to one of the two front diagonal case), turn around in one direction or pass its turn if it just wants to recuperate.
+At the beginning of a game, each robot start with 10 lives and 6 energy units and is placed on a base. The goal for a robot is to have the most treasures at the end of the game.
+Your robot can pickup treasures dipersed randomly on the map and protect those treasures by placing them on a base. All treasures don't have the same value (it goes from 1 to 10).
+When your robot manages to shoot an ennemy, all treasures that ennemy was transporting (aka treasures treasures that wasn't stocked on a base) stay where it was and the ennemy is teleported to a random base, or disappears if it has no live left. Your robot is free to go pick up its reward.
+A robot that has been shooted at won't be able to do anything until the next turn.
+At each new turn your robot gains back 2 energy units (or 3 if it passed its turn).
+Going to a base will completely recharge your robot.
+
+The game ends if there is only one robot left alive or if time is up.
+
+Once every player have finished their code, just launch the game by typing "make" and then "robotswar" on your terminal window and you'll be able to see your robots in action ! In game a robot is represented by a ^, >, v or < depending on its direction, a treasure is a $, a base is a @ and the = are walls.
+
+
+HOW TO PROVIDE A CODE FOR YOUR ROBOT :
+
+To provide a code for your robot, your need to write it in a text file, and then to save it inside the folder "robots" of this program. Your file will need to be called robot_name_of_your_choosing.robot
+
+Every word needs to be separated by a space, tab or newline.
+
+Each action of your robot will be added to a queue of actions of all robots in the game.
+The quickest the action, the more chance you have of your robot acting first. The quickiness of an action is defined by the energy your robot'll have left after doing it.
+At the end of this notice your will see what energy units each action consume.
+
+Once your robot received an action to do or your code has ended, your robot won't do anything else before its next turn.
+Energy will also slowly decrease as time pass by so take care that your code doesn't take too long too process either !
+
+If you tell your robot to do something but it can't, it simply won't do it. So you'll lose your turn.
+A robot has its own field of view, to know what it will and won't be able to see, see figure 2.
+
+
+  How to declare a variable :
+var variable_name
+
+The name of a variable must start with a letter and contain only letter number or underscore
+
+  How to assign a value to a variable :
+variable_name = value
+
+Warning : an assignment must be done separately from a declaration
+
+  Synthax of a condition :
+value1 == value2 (test wether value1 is equal to value2)
+value1 != value2 (test wether value1 is different from value2)
+value1 < value2 (test wether value1 is lesser than value2)
+value1 > value2 (test wether value1 is greater than value2)
+value1 <= value2 (test wether value1 is lesser than or equal to value2)
+value1 >= value2 (test wether value1 is greater than or equal to value2)
+|| and && enable you t use logic AND and OR. Priority goes from left to right.
+
+  How to do something if a condition is true :
+if condition
+	things_to_do_here 
+endif
+
+  How to repat doing something while a condition is true :
+while cond
+	things_to_do_here
+endwhile
+
+  How to break a Loop before its condition is false :
+break
+
+  How to pass your turn :
+Snooze
+
+  How to know the contents of a case (see predefined values for the different possible contents) :
+Look line_number column_number (line and column numbers are in reference to the position and orientation of your robot, see figure 1)
+
+  How to make your robot go forward :
+Go direction (see predefined values for the directions you can choose)
+
+Don't forget that if the case your robot is trying to go to isn't free (or to go throught one), it'll lose its turn
+
+  How to make your robot shoot to a case :
+Shoot line_number column_number
+
+Don't forget that if there is a wall between you and the case you want, your shooting will be stopped by it
+
+  How to make your robot turn around :
+TurnAround direction (see predefined values for the directions you can choose)
+
+
+  If you need to calculate something, please write your arithmetic expression alltogether without space (ex : 2+3*(3-2)/4 ).
+And you'll only be able to use whole numbers.
+
+
+  Predefined values :
+
+GAMELIMIT : the case you're looking at is out of the game area
+NORESULT : you can't see what's on this case (either there is a wall between your robot and it or it is not in the field of view of your robot at all)
+NOTHING : there is nothing on this case
+WALL : there is a wall on this case
+TREASURE : there is a treasure on this case
+BASE : there is a base on this case
+ROBOT : there is an ennemy robot on this case
+
+RIGHT : make your robot turn to its right with TurnAround or go to the next right-front diagonal case with Go
+LEFT : make your robot turn to its left with TurnAround or go to the next left-front diagonal case with Go
+BACK : make your robot do an half-turn with TurnAround
+FORWARD : make your robot go to the next front case with Go
+SPRINT : make your robot go to the second next front case with Go
+
+VISIONMAX : how far your robot can see (and shoot), in cases number
+
+Life : how many life your robot has left
+Score : the number of treasures your robot possesses (only the treasures it has on itself, not those saved at a base)
+Energy : the energy left of your robot
+
+
+  Energy units consumed by action :
+
+• Shoot -3
+• Go (forward) -2
+• Go (diagonally or forward 2 spaces) -3
+• Turn around -1
+• Pass your turn +1
+
+
+FIGURES :
+
+  Figure 1, line and column number in relation to your robot :
+
+[3,-3]	[3,-2]	[3,-1]	[3,0]  [3,1]	[3,2]  [3,3]
+		    [2,-2]	[2,-1]	[2,0]  [2,1]	[2,2]
+				        [1,-1]	[1,0]  [1,1]
+		            				[0,0]
+		            				  ^
+		            				  |
+		            		Your robot is here
+
+[line_number,column_number]
+
+
+  Figure 2, Field of view of a robot :
+
+	 -11	-10	-9	-8	-7	-6	-5	-4	-3	-2	-1	 0	 1	 2	 3	 4	 5	 6	 7	 8	 9	10	11	
+ 11	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+ 10	[X] [ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]
+  9	[X] [X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]
+  8	[X] [X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[=]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]
+  7	[X] [X]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]
+  6	[X] [X]	[X]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]	[X]
+  5	[X] [X]	[X]	[X]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]	[X]	[X]
+  4	[X] [X]	[X]	[X]	[X]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+  3	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+  2	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[ ]	[ ]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+  1	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[ ]	[ ]	[ ]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+  0	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X][BOT][X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+ -1	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+ -2	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+ -3	[X] [X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]	[X]
+
+ [ ] = can see
+ [X] = can't see
+ [=] = wall
+ [BOT] = the robot
