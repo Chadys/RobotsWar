@@ -54,27 +54,25 @@ int cond_is_ok(player *joueur,int i){
 }
 
 
-//test wether all conditions of a test are true, return word count of conditions, positive if true, negative if not
+//test wether all conditions of a test are true, return word count of conditions tested, positive if true, negative if not
 int cond_are_ok(player *joueur,int i){
-	int taille, temp;
+	int taille, total;
 
-	for(taille = cond_is_ok(joueur,i), temp=taille, i+=abs(taille); !strcmp(joueur->code[i], "||") || !strcmp(joueur->code[i], "&&");i+=abs(taille)){
-		i++;
-		taille = cond_is_ok(joueur,i);
-		if(*joueur->code[i+taille]=='|'){
+	for(taille = cond_is_ok(joueur,i), total=abs(taille), i+=abs(taille) ;; i++, taille = cond_is_ok(joueur,i), total+=1+abs(taille), i+=abs(taille)){
+		if(*joueur->code[i]=='|'){
 			if(taille>0)
-				return taille+abs(temp)+1;
+				return total;
 			else
-				temp=taille-(abs(temp)+1);
+				continue;
 		}
-		if(*joueur->code[i+taille]=='&'){
+		if(*joueur->code[i]=='&'){
 			if(taille<0)
-				return taille-(abs(temp)+1);
+				return -total;
 			else
-				temp=abs(temp)+1+taille;
+				continue;
 		}
+		return taille>0 ? total : -total;
 	}
-	return temp;
 }
 
 //count the number of words of all conditions of a test
