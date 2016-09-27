@@ -71,7 +71,7 @@ player * verif_code(player *joueur){
 		}
 		if(!strcmp(joueur->code[i],"endwhile")){
 			if(pendingwhile==0){
-				fprintf(stderr,"Error: Word %d, '%s' without starting 'while'\n",i,joueur->code[i+1]);
+				fprintf(stderr,"Error: Word %d, '%s' without starting 'while'\n",i,joueur->code[i]);
 				break;
 			}
 			pendingwhile--;
@@ -79,7 +79,7 @@ player * verif_code(player *joueur){
 		}
 		if(!strcmp(joueur->code[i],"endelse")){
 			if(!pendingelse){
-				fprintf(stderr,"Error: Word %d, '%s' without starting 'else'\n",i,joueur->code[i+1]);
+				fprintf(stderr,"Error: Word %d, '%s' without starting 'else'\n",i,joueur->code[i]);
 				break;
 			}
 			pendingelse--;
@@ -87,7 +87,14 @@ player * verif_code(player *joueur){
 		} 
 		if(!strcmp(joueur->code[i],"break")){
 			if(pendingwhile==0){
-				fprintf(stderr,"Error: Word %d, '%s' without starting 'while'\n",i,joueur->code[i+1]);
+				fprintf(stderr,"Error: Word %d, '%s' without starting 'while'\n",i,joueur->code[i]);
+				break;
+			}
+			continue;
+		} 
+		if(!strcmp(joueur->code[i],"continue")){
+			if(pendingwhile==0){
+				fprintf(stderr,"Error: Word %d, '%s' without starting 'while'\n",i,joueur->code[i]);
 				break;
 			}
 			continue;
