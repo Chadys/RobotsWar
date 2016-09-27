@@ -67,6 +67,9 @@ endwhile
   Comment arrêter une boucle avant que sa condition ne soit fausse :
 break
 
+  Comment continuer une boucle avant la fin de ses instructions :
+continue
+
   Comment passer son tour :
 Snooze
 
