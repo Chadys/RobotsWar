@@ -204,7 +204,7 @@ unsigned short readcode(player *joueur){
 			continue;
 		}
 		if(!strcmp(joueur->code[i],"break")){
-			if(pilewhile && pilewhile->data==i){
+			if(pilewhile){
 		 		temp=pilewhile;
 		 		pilewhile=pilewhile->next;
 		 		free(temp);
@@ -218,6 +218,13 @@ unsigned short readcode(player *joueur){
 		 	i=j;
 		 	timer++;
 		 	continue;
+		}
+		if(!strcmp(joueur->code[i],"continue")){
+			if(pilewhile){
+				i=pilewhile->data-1;
+				timer++;
+			}
+			continue;
 		}
 		if(!strcmp(joueur->code[i],"Look")){
 			eval(joueur,i);
