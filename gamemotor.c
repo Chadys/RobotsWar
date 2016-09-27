@@ -97,5 +97,5 @@ void end(unsigned short n_living_player){
 	if(!draw)
 		printf("THE WINNER IS %s%s\e[39m\nCONGRATULATION, YOU GOLD DIGGER !\n",winner->play->color,winner->play->name);
 	else
-		printf("THIS IS A DRAW ! CONGRATULATION YOU %hd\n",draw);
+		printf("THIS IS A DRAW ! CONGRATULATION YOU %hd\n",draw+1);
 }
