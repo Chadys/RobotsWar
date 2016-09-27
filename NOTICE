@@ -68,6 +68,9 @@ endwhile
   How to break a Loop before its condition is false :
 break
 
+  How to continue a Loop before its instructions are done :
+continue
+
   How to pass your turn :
 Snooze
 
