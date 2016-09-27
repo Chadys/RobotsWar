@@ -6,7 +6,7 @@ char **getplayersfiles()
 	int nplayers;
 
 	nplayers=0;
-	system("(ls -1 " ROBOTSDIR " | grep .robot) > " TMP_FILE);
+	system("(ls -1 " ROBOTSDIR " | grep '.robot$') > " TMP_FILE);
 	
 	FILE *RSTREAM = fopen(TMP_FILE, "r");
 	
