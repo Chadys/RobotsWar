@@ -16,7 +16,7 @@ int check(int ya, int xa)
 //return the value of a case content, seen from a specified location 
 coord ligne(coord a, int prof, int larg)
 {
-	int xb, yb;
+	int xb, yb, i, j, ii, count, l, val;
 	coord r;
 
 	if(a.dir == 1)
@@ -57,32 +57,30 @@ coord ligne(coord a, int prof, int larg)
 	float pente;
 	if(larg == 0)
 		pente = prof;
+	else if(abs(larg) == 1)
+		pente = (((float)prof / (float)2) + 1) * larg;
 	else
 		pente = (float)prof / (float)larg;
-	if(abs(larg) == 1)
-		pente = (((float)prof / (float)2) + 1) * larg;
 	//printf("Pente : %f\n", pente);
 	// on monte de pente et on décale à gauche ou à droite de 1
-	
-	int i, j, ii;
+
 	i = abs((int)pente);
 	j = i;
-	if(fabs(pente - (int)pente) > 0.5)
-		j = i+1;
+	if(fabs(pente - (int)pente) >= 0.5)
+		j++;
 
 	//printf("i : %d - j : %d\n", i, j);
 	
-	int count = 0;
+	count = 0;
 	
-	int l;
-	int val;
 	while(1)
 	{
 		//printf("%d\n", count);
 		// on monte de i ou j
-		l = i;
 		if(count % 2)
 			l = j;
+		else
+			l=i;
 	
 		for(ii = 0; ii < l; ii++)
 		{
@@ -136,7 +134,7 @@ coord ligne(coord a, int prof, int larg)
 			return r;
 		}
 	
-		// on décale à gauche/drointe
+		// on décale à gauche/droite
 		count++;
 	}
 }
