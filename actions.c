@@ -77,6 +77,7 @@ void add_action(listaction A)
 void turnaround(player * joueur, int newdir,int __attribute__ ((unused))useless, short able){
 	char *arg;
 	int length;
+	void* test;
 
 	if(able>=0){
 		switch(newdir){
@@ -142,6 +143,17 @@ void turnaround(player * joueur, int newdir,int __attribute__ ((unused))useless,
 		}
 		joueur->energy--;
 	}
+	else
+		switch(newdir){
+			case 2 :
+				arg="RIGHT";
+				break;
+			case 4 :
+				arg="LEFT";
+				break;
+			case 3 :
+				arg="BACK";
+		};
 
 	length=strlen(joueur->name)+21; //color+name+" : TurnAround " and '\0'
 	length+=strlen(arg);
@@ -157,6 +169,16 @@ void turnaround(player * joueur, int newdir,int __attribute__ ((unused))useless,
 		strcat(currentaction," : TurnAround ");
 		strcat(currentaction,arg);
 	}
+	if(able<0){
+		test=realloc(currentaction, sizeof(char)*length+23);
+		if(!test){
+			fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
+			perror("realloc");
+			return;
+		}
+		currentaction=test;
+		strcat(currentaction," !! Not enought ENERGY");
+	}
 }
 
 
@@ -170,33 +192,50 @@ void go(player * joueur, int newcase,int __attribute__ ((unused))useless, short 
 	int prof,larg;
 	char *arg;
 	int length;
+	void* test;
+
+	nrj=2;
+	switch(newcase){
+		case 1 :
+			prof=1;
+			larg=0;
+			arg="FORWARD";
+			break;
+		case 2 :
+			prof=1;
+			larg=1;
+			arg="RIGHT";
+			nrj++;
+			break;
+		case 4 :
+			prof=1;
+			larg=-1;
+			arg="LEFT";
+			nrj++;
+			break;
+		case 5 :
+			prof=2;
+			larg=0;
+			arg="SPRINT";
+			nrj++;
+	}
+
+	length=strlen(joueur->name)+13; //color+name+" : Go " and '\0'
+	length+=strlen(arg);
+	currentaction=malloc(sizeof(char)*length);
+	if(!currentaction){
+		fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
+		perror("malloc");
+		currentaction="";
+	}
+	else{
+		strcpy(currentaction,joueur->color);
+		strcat(currentaction,joueur->name);
+		strcat(currentaction," : Go ");
+		strcat(currentaction,arg);
+	}
 
 	if(able>=0){
-		nrj=2;
-		switch(newcase){
-			case 1 :
-				prof=1;
-				larg=0;
-				arg="FORWARD";
-				break;
-			case 2 :
-				prof=1;
-				larg=1;
-				arg="RIGHT";
-				nrj++;
-				break;
-			case 4 :
-				prof=1;
-				larg=-1;
-				arg="LEFT";
-				nrj++;
-				break;
-			case 5 :
-				prof=2;
-				larg=0;
-				arg="SPRINT";
-				nrj++;
-		}
 		dest=ligne(joueur->loc,prof,larg);
 		destbis=ligne(joueur->loc,1,0);
 		if(dest.dir==-1 || dest.dir==-2 || dest.dir==1 || dest.dir==4)
@@ -242,21 +281,16 @@ void go(player * joueur, int newcase,int __attribute__ ((unused))useless, short 
 		}
 		joueur->energy-=nrj;
 	}
-	
-	length=strlen(joueur->name)+13; //color+name+" : Go " and '\0'
-	length+=strlen(arg);
-	currentaction=malloc(sizeof(char)*length);
-	if(!currentaction){
-		fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
-		perror("malloc");
-		currentaction="";
-	}
 	else{
-		strcpy(currentaction,joueur->color);
-		strcat(currentaction,joueur->name);
-		strcat(currentaction," : Go ");
-		strcat(currentaction,arg);
-	}	
+		test=realloc(currentaction, sizeof(char)*length+23);
+		if(!test){
+			fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
+			perror("realloc");
+			return;
+		}
+		currentaction=test;
+		strcat(currentaction," !! Not enought ENERGY");
+	}
 }
 
 // teleport a player that has been hit to a random empty location
@@ -305,11 +339,11 @@ void isshooted(coord bot){
 void shoot(player * joueur, int prof,int larg, short able)
 {
 	coord res;
-	char arg_0[32];
-	char arg_1[32];
+	char arg_0[32], arg_1[32];
 	int length;
 	char* str;
 	struct timespec perplayer;
+	void* test;
 	
 	length=strlen(joueur->name)+16; //color+name+" : Shoot " and '\0'
 	length+=sprintf(arg_0, "%d", prof)+1;
@@ -351,6 +385,16 @@ void shoot(player * joueur, int prof,int larg, short able)
 			if(res.dir==4)
 				isshooted(res);
 		}
+	}
+	else{
+		test=realloc(currentaction, sizeof(char)*length+23);
+		if(!test){
+			fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
+			perror("realloc");
+			return;
+		}
+		currentaction=test;
+		strcat(currentaction," !! Not enought ENERGY");
 	}
 }
 
