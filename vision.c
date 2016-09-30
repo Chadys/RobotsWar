@@ -16,34 +16,33 @@ int check(int ya, int xa)
 //return the value of a case content, seen from a specified location 
 coord ligne(coord a, int prof, int larg)
 {
-	int xb, yb, i, j, ii, count, l, val;
+	int i, j, ii, count, l, val;
 	coord r;
+	float pente;
 
 	if(a.dir == 1)
 	{
-		xb = a.j + larg;
-		yb = a.i - prof;
+		r.j = a.j + larg;
+		r.i = a.i - prof;
 	}
 	else if(a.dir == 2)
 	{
-		xb = a.j + prof;
-		yb = a.i + larg;
+		r.j = a.j + prof;
+		r.i = a.i + larg;
 	}
 	else if(a.dir == 3)
 	{
-		xb = a.j - larg;
-		yb = a.i + prof;
+		r.j = a.j - larg;
+		r.i = a.i + prof;
 	}
 	else if(a.dir == 4)
 	{
-		xb = a.j - prof;
-		yb = a.i - larg;
+		r.j = a.j - prof;
+		r.i = a.i - larg;
 	}
-	r.i=yb;
-	r.j=xb;
 	//printf("xb : %d - yb : %d\n", xb, yb);
 	
-	if(xb < 0 || xb >= nlvl || yb < 0 || yb >= nlvl){
+	if(r.j >= nlvl || r.i >= nlvl){
 		r.dir=-2;
 		return r;
 	}
@@ -54,7 +53,6 @@ coord ligne(coord a, int prof, int larg)
 	}
 	
 
-	float pente;
 	if(larg == 0)
 		pente = prof;
 	else if(abs(larg) == 1)
@@ -86,14 +84,14 @@ coord ligne(coord a, int prof, int larg)
 		{
 			switch(a.dir)
 			{
-				case 1 : a.i--;break;
-				case 2 : a.j++;break;
-				case 3 : a.i++;break;
-				case 4 : a.j--;break;
+				case 1 : if (a.i!=r.i) a.i--;break;
+				case 2 : if (a.j!=r.j) a.j++;break;
+				case 3 : if (a.i!=r.i) a.i++;break;
+				case 4 : if (a.j!=r.j) a.j--;break;
 			}
 	
 			val = check(a.i, a.j);
-			if(a.i == yb && a.j == xb){
+			if(a.i == r.i && a.j == r.j){
 				r.dir = val;
 				return r;
 			}
@@ -107,25 +105,25 @@ coord ligne(coord a, int prof, int larg)
 		{
 			switch(a.dir)
 			{
-				case 1 : a.j--;break;
-				case 2 : a.i--;break;
-				case 3 : a.j++;break;
-				case 4 : a.i++;break;
+				case 1 : if (a.j!=r.j) a.j--;break;
+				case 2 : if (a.i!=r.i) a.i--;break;
+				case 3 : if (a.j!=r.j) a.j++;break;
+				case 4 : if (a.i!=r.i) a.i++;break;
 			}
 		}
 		else if(pente > 0)
 		{
 			switch(a.dir)
 			{
-				case 1 : a.j++;break;
-				case 2 : a.i++;break;
-				case 3 : a.j--;break;
-				case 4 : a.i--;break;
+				case 1 : if (a.j!=r.j) a.j++;break;
+				case 2 : if (a.i!=r.i) a.i++;break;
+				case 3 : if (a.j!=r.j) a.j--;break;
+				case 4 : if (a.i!=r.i) a.i--;break;
 			}
 		}
 
 		val = check(a.i, a.j);
-		if(a.i == yb && a.j == xb){
+		if(a.i == r.i && a.j == r.j){
 			r.dir = val;
 			return r;
 		}
