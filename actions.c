@@ -425,7 +425,8 @@ void addbutinjoueur(player * joueur){
 	}
 	joueur->treasure=0;
 	joueur->onbase=0;
-	joueur->life--;
+	if(joueur->life)
+		joueur->life--;
 	joueur->energy=0;
 }
 
