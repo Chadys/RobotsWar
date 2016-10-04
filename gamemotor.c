@@ -6,11 +6,11 @@ void start()
 	unsigned short n_living_player, stillturn;
 
 	struct timespec perturn;
-	perturn.tv_nsec = DELAY_TURN * 1000000;
+	perturn.tv_nsec = DELAY_TURN;
 	perturn.tv_sec = 0;
 	
 	struct timespec perplayer;
-	perplayer.tv_nsec = DELAY_ACTION * 1000000;
+	perplayer.tv_nsec = DELAY_ACTION;
 	perplayer.tv_sec = 0;
 
 	n_living_player=0;
@@ -21,6 +21,7 @@ void start()
 
 	while(current_turn <= MAX_TURN)
 	{
+		n_living_player=0;
 		for(tmp = playerslist; tmp; n_living_player+=readcode(tmp->play), tmp = tmp->next);
 
 		if(n_living_player<2){
