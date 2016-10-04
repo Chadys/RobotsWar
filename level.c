@@ -163,7 +163,7 @@ void displaylevel(int nround){
 	printf(" ROUND : %02hd",nround);
 	for(i+=5;i<nlvl;i++)
 		printf(" _");
-	printf("  Player    Treasures Total Life Energy\n|");
+	printf("  %-11s%27s\n|","Player","Treasures Saved Life Energy");
 	for(i=0;i<nlvl;i++)
 	{
 		for(j=0;j<nlvl;j++)
