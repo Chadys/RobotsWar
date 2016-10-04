@@ -9,7 +9,7 @@ int remplacer(player *P, char *varname)
     else if(!strcmp(varname, "Life"))
         return P->life;
     else if(!strcmp(varname, "Score"))
-        return P->score;
+        return P->treasure;
     else if(!strcmp(varname, "Energy"))
         return P->energy;
     else if(!strcmp(varname, "GAMELIMIT"))
