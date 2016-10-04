@@ -118,6 +118,7 @@ player * verif_code(player *joueur){
 				break;
 			}
 			pendingelse++;
+			continue;
 		}
 		if(!verif_var(joueur->code[i], joueur->varlist,1)){
 			fprintf(stderr,"Error: Word %d, Invalid variable\n",i);
