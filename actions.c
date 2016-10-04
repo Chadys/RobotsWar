@@ -377,7 +377,7 @@ void shoot(player * joueur, int prof,int larg, short able)
 				sprintf(str, "echo %s[%c]", joueur->color,level[res.i][res.j]);
 				system(str);
 				free(str);
-				perplayer.tv_nsec = DELAY_ACTION * 1000000;
+				perplayer.tv_nsec = DELAY_ACTION;
 				perplayer.tv_sec = 0;
 				nanosleep(&perplayer, NULL);
 			}
