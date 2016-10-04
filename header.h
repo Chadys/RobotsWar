@@ -22,8 +22,8 @@
 
 #define MAX_TURN 50 //number of turn max in a game
 #define MAX_TIMER 2000 //interval of read word in a player code before the robot lose 1 energy unit
-#define DELAY_ACTION 150 //pause delay between each player's action
-#define DELAY_TURN 100 //pause delay between each game turn
+#define DELAY_ACTION 150000000 //pause delay between each player's action
+#define DELAY_TURN 100000000 //pause delay between each game turn
 
 
 /* coords */
