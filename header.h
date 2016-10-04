@@ -49,7 +49,7 @@ struct player{
 	char *color; //sûrement un code en hexa, il faudra voir les couleurs prédéfinies de sdl sinon
 	char *name;
 	unsigned short treasure;
-	unsigned int score;
+	unsigned short score;
 	unsigned short life;
 	unsigned short energy;
 	listvar varlist;
