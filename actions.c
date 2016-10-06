@@ -170,7 +170,7 @@ void turnaround(player * joueur, int newdir,int __attribute__ ((unused))useless,
 		strcat(currentaction,arg);
 	}
 	if(able<0){
-		test=realloc(currentaction, sizeof(char)*length+23);
+		test=realloc(currentaction, sizeof(char)*(length+23));
 		if(!test){
 			fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
 			perror("realloc");
