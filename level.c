@@ -224,7 +224,7 @@ void displayplayer(player * joueur){
 	char *etc;
 
 	if(joueur->life==0)
-		printf(" \e[90m%-10s DEAD",joueur->name);
+		printf(" \e[90m%-10s DEAD\e[37m",joueur->name);
 	else{
 		i=joueur->energy;
 		etc=malloc(sizeof(char)*i+1);
