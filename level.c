@@ -34,8 +34,8 @@ int set_level(int nb_players)
 		free(buff);
 		return 0;
 	}
-	buff=test;
 	FILE *data = fopen(buff, "r");
+	buff=test;
 
 	if(!data)
 	{
@@ -47,8 +47,9 @@ int set_level(int nb_players)
 
 	fgets(buff, MAX_LETTERS_READ, data);
 	int size = strtol(buff, NULL, 10);
-	if(size < 1 && size > MAX_LETTERS_READ)
+	if(size < 1 || size > MAX_LETTERS_READ)
 	{
+		perror("size of level");
 		free(buff);
 		fclose(data);
 		return 0;
@@ -57,6 +58,7 @@ int set_level(int nb_players)
 	level = malloc(sizeof(char*) * size);
 	if(!level)
 	{
+		perror("malloc level");
 		free(buff);
 		fclose(data);
 		return 0;
