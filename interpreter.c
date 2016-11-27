@@ -113,10 +113,8 @@ unsigned short readcode(player *joueur){
 		return 0;
 	reading=1;
 	for(i=0;joueur->code[i];i++,timer++){
-		if(error==1){ //if player's code produced an error
-			fprintf(stderr, "Arithmetic error encountered while parsing code of player %s\n", joueur->name);
+		if(error==1) //if player's code produced an error
 			break;
-		}
 		if(timer>=MAX_TIMER){ //energy slowly decrease as time pass
 			joueur->energy--;
 			timer-=MAX_TIMER;
@@ -288,8 +286,10 @@ unsigned short readcode(player *joueur){
 		i+=2;
 		timer+=2;
 	}
-	if(error==1)
+	if(error==1){
+		fprintf(stderr, "Arithmetic error encountered while parsing code of player %s\n", joueur->name);
 		error=0;
+	}
 	reading=0;
 	joueur->energy+=2;
 	if(joueur->energy>MAX_ENERGY || joueur->onbase)
