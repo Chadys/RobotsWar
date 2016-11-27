@@ -83,7 +83,7 @@ void end(unsigned short n_living_player){
 	while(winner && !winner->play->life)
 		winner=winner->next;
 	draw=0;
-	for(temp=playerslist->next;temp;temp=temp->next){
+	for(temp=winner->next;temp;temp=temp->next){
 		gold1=temp->play->score+temp->play->treasure;
 		gold2=winner->play->score+winner->play->treasure;
 		if (temp->play->life){
