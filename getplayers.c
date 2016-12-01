@@ -38,7 +38,7 @@ char **getplayersfiles()
 		*(ret + i) = strndup(buff,strlen(buff)-1); //delete the \n at the end
 		nplayers++;
 	}
-	if(i<MAX_ROBOTS-1)
+	if(i<MAX_ROBOTS)
 		*(ret + i)=NULL;
 	if(fgets(buff, MAX_FILE_NAME, RSTREAM))
 		fprintf(stderr, "Max number of files reached (%d), some files have been ignored.\n", MAX_ROBOTS);
@@ -50,8 +50,9 @@ char **getplayersfiles()
 	nlvl=set_level(nplayers);
 	if(!nlvl){
 		fprintf(stderr, "The level couldn't be created.\n");
-		for(i=0;*(ret + i);i++)
+		for(i=0;i<MAX_ROBOTS && *(ret + i);i++)
 			free(*(ret + i));
+		free(ret);
 		return NULL;
 	}
 	return ret;
@@ -116,9 +117,9 @@ char getplayers(){
 					level[c.i][c.j]='<';
 			}
 			addrandombutin();
-			free(*(players+i));
 		}
 		fclose(fd);
+		free(*(players+i));
 	}
 	free(players);
 	if(i<2){
