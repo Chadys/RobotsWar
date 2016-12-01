@@ -109,8 +109,14 @@ unsigned short readcode(player *joueur){
 
 	timer=0;
 	pilewhile=NULL;
-	if(joueur->life==0)
+	if(!joueur->life){
+		while(pilewhile){
+			temp = pilewhile->next;
+			free(pilewhile);
+			pilewhile = temp;
+		}
 		return 0;
+	}
 	reading=1;
 	for(i=0;joueur->code[i];i++,timer++){
 		if(error==1) //if player's code produced an error
@@ -294,5 +300,10 @@ unsigned short readcode(player *joueur){
 	joueur->energy+=2;
 	if(joueur->energy>MAX_ENERGY || joueur->onbase)
 		joueur->energy=MAX_ENERGY;
+	while(pilewhile){
+		temp = pilewhile->next;
+		free(pilewhile);
+		pilewhile = temp;
+	}
 	return 1;
 }
