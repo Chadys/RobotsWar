@@ -34,8 +34,8 @@ int set_level(int nb_players)
 		free(buff);
 		return 0;
 	}
-	FILE *data = fopen(buff, "r");
 	buff=test;
+	FILE *data = fopen(buff, "r");
 
 	if(!data)
 	{
