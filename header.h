@@ -16,6 +16,7 @@
 #define ROBOTSDIR "robots" //name of the directory containing players' files
 #define MAX_FILE_NAME 256 //max number of letters of a file
 #define MAX_LETTERS_READ 100 //max number of letter read at once
+#define MAX_TAB 15 //max number of tabulation that can be printed to a player's compiled fil
 #define MAX_LIFE 3 //starting number of a robot's life
 #define MAX_VISION 10 //range of a robot's field of view
 #define MAX_ENERGY 6 //starting number of a robot's energy units
@@ -108,6 +109,15 @@ typedef struct listfunction{
     p_fct p_fct[MAX_ROBOTS];
     unsigned short n;
 } listfunction;
+
+
+/* player's actions enum */
+typedef enum ACTION{
+        SNOOZE,
+        TURNAROUND,
+        GO,
+        SHOOT
+} ACTION;
 
 /* globals */
 extern listplay playerslist; //list of players

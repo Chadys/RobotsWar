@@ -28,10 +28,10 @@ void create_action(char action, int arg1, int arg2){
     listaction act;
     
     switch(action){
-        case 0: //Snooze
+        case SNOOZE:
             current_p->energy++;
             return;
-        case 1: //TurnAround
+        case TURNAROUND:
             priority=current_p->energy-1;
             act=malloc(sizeof(action));
             act->p=current_p;
@@ -42,7 +42,7 @@ void create_action(char action, int arg1, int arg2){
             act->next=NULL;
             add_action(act);
             return;
-        case 2: //Shoot
+        case SHOOT:
             priority=current_p->energy-3;
             act=malloc(sizeof(action));
             act->p=current_p;
@@ -53,7 +53,7 @@ void create_action(char action, int arg1, int arg2){
             act->next=NULL;
             add_action(act);
             return;
-        case 3: //Go
+        case GO:
             priority=current_p->energy-3;
             if(arg1 == 1) //FORWARD
                 priority++;

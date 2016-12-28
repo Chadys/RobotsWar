@@ -35,7 +35,7 @@
 
 (?i:[a-z][a-z0-9_]*)        { yylval.c = get_chaine(yytext, yyleng); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
-[-+*/%=()]      { return yytext[0]; }
+[-+*/%=()<>]      { return yytext[0]; }
 
 [ \t\f]         ;
 \n              lineno += 1;

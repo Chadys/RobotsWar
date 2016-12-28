@@ -6,6 +6,7 @@ robotswar
 core
 *~
 *.o
+*.output
 
 #IDE
 *.kdev4
