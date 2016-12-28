@@ -1,17 +1,15 @@
-  /* ppcm.l
-   analyseur lexical. representation unique des chaines de caracteres
-   */
-# include "header.h"
-char * chaine();
-void init_chaine();
-int lineno = 1;
-static char ** chaines = NULL;
-static int nchaines = 0;
-init_chaine();
+%option noyywrap
+
+    void init_chaine();
+    char *get_simple_chaine(char);
+    char *get_chaine();
+    int getvalue(char *);
+    int lineno = 1;
 
 %%
-"<="|">="|"!="|"==" { yylval.c = simple_chaine(yytext[0]); return YTEST; }
-"&&"|"||"       { yylval.c = simple_chaine(yytext[0]); return YCOND; }
+
+"<="|">="|"!="|"==" { yylval.c = get_simple_chaine(yytext[0]); return YTEST; }
+"&&"|"||"       { yylval.c = get_simple_chaine(yytext[0]); return YCOND; }
 
 "var"           { return YVAR; }
 "Look"          { return YLOOK; }
@@ -34,31 +32,35 @@ init_chaine();
 "endwhile"      { return YENDWHILE; }
 "else"          { return YELSE; }
 "endelse"       { return YENDELSE; }
-"break"|"continue"  { yylval.c = simple_chaine(yytext[0]); return YLOOP; }
+"break"|"continue"  { yylval.c = get_simple_chaine(yytext[0]); return YLOOP; }
 
-(?i:[a-z][a-z0-9_]*)        { yylval.c = chaine(yytext); return YNOM; }
+(?i:[a-z][a-z0-9_]*)        { yylval.c = get_chaine(yytext, yyleng); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
 [-+*/%=()]      { return yytext[0]; }
 
 [ \t\f]         ;
 \n              lineno += 1;
 .               { fprintf(stderr, "yylex : (%c)\n", yytext[0]); }
+
 %%
+
+static char ** chaines = NULL;
+static int nchaines = 0;
 
 /* init_chaine  --  renvoie une representation unique de la chaine argument */
 void init_chaine(){
     int i;
 
-    nchaine = 8;
-    if((chaine = malloc(nchaines*sizeof(char*)) == NULL);
-        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords %s\n", s);
+    nchaines = 8;
+    if((chaines = malloc(nchaines*sizeof(char*))) == NULL)
+        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
     for(i = 0; i<6; i++)
-        if((chaine[i] = malloc(3*sizeof(char)) == NULL);
-            fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords %s\n", s);
-    if((chaine[6] = malloc(6*sizeof(char)) == NULL);
-        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords %s\n", s);
-    if((chaine[7] = malloc(9*sizeof(char)) == NULL);
-        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords %s\n", s);
+        if((chaines[i] = malloc(3*sizeof(char))) == NULL)
+            fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
+    if((chaines[6] = malloc(6*sizeof(char))) == NULL)
+        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
+    if((chaines[7] = malloc(9*sizeof(char))) == NULL)
+        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
     strcpy(chaines[0], "==");
     strcpy(chaines[1], "!=");
     strcpy(chaines[2], "<=");
@@ -70,8 +72,8 @@ void init_chaine(){
 }
 
 /* chaine  --  renvoie une representation unique de la chaine argument */
-char * chaine(char * s){
-    void *test;
+char * get_chaine(char * s, int length){
+    char **test;
     int i;
 
     for(i = 8; i < nchaines ; ++i)
@@ -82,31 +84,33 @@ char * chaine(char * s){
     if ((test = realloc(chaines, nchaines*sizeof(char*))) == NULL)
         fprintf(stderr,"Error: Line %d, Could not obtain enought memory to stock variable %s\n",lineno, s);
     chaines = test;
-    if((chaines[i] = malloc((strlen(s) + 1)*sizeof(char))) == NULL)
+    if((chaines[i] = malloc((length + 1)*sizeof(char))) == NULL)
         fprintf(stderr,"Error: Line %d, Could not obtain enought memory to stock variable %s\n",lineno, s);
     strcpy(chaines[i], s);
     return chaines[i];
 }
 
 /* simple_chaine  --  renvoie une representation unique d'un mot-clef */
-char * simple_chaine(char c){
+char * get_simple_chaine(char c){
     switch(c){
         case '=':
-            return chaine[0]
+            return chaines[0];
         case '!':
-            return chaine[1]
+            return chaines[1];
         case '<':
-            return chaine[2]
+            return chaines[2];
         case '>':
-            return chaine[3]
+            return chaines[3];
         case '&':
-            return chaine[4]
+            return chaines[4];
         case '|':
-            return chaine[5]
+            return chaines[5];
         case 'b':
-            return chaine[6]
+            return chaines[6];
         case 'c':
-            return chaine[7]
+            return chaines[7];
+        default:
+            return NULL;
     }
 }
 
@@ -130,10 +134,4 @@ int getvalue(char *keyword){
     else if(!strcmp(keyword, "ROBOT") || !strcmp(keyword, "LEFT"))
         return 4;
     return INT_MIN;
-}
-
-int yywrap(){
-    if(chaines!=NULL)
-        free(chaines);
-    return 1;
 }

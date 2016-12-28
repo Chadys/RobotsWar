@@ -18,6 +18,23 @@ int main(){
 	if (signal(SIGFPE,div0) == SIG_ERR)
 		perror("signal");
 
+    
+    printf("Would you like to compile players' file (type 'c') or launch the game if you already compiled them (type 'r') ?\nFinally to quit type 'q' : ");
+    for(i=fgetc(stdin);i!='c' && i!='r' && i!='q';i=fgetc(stdin))
+        if(i!=EOF && i!=' ' && i!='\n')
+            printf("Invalid entry, please try again.\n");;
+    if(i=='c'){
+        if(compile_all()){
+            printf("Successful compilation, you can now restart the game to play with your robots !\n");
+            exit(EXIT_SUCCESS);
+        }
+        printf("Compilation has failed\n");
+        exit(EXIT_FAILURE);
+    }
+    if(i=='q')
+        exit(EXIT_SUCCESS);
+    
+    
 	i = setjmp(ebuf);
 	if(i)
 		cleangame();

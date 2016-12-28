@@ -1,22 +1,23 @@
-CSRC= actions.c eval.c gamemotor.c getplayers.c interpreter.c level.c main.c onquit.c verifcode.c vision.c
-SRC= $(CSRC) robot.l robot.y
-OBJ = $(CSRC:.c=.o) robot.tab.o
+CSRC= actions.c gamemotor.c getplayers.c level.c main.c onquit.c vision.c get_players_fonc.c players_code.c $(wildcard *_robot.c)
+SRC= $(CSRC) lex_analyze.l compiler.y
+OBJ = $(CSRC:.c=.o) compiler.tab.o
 CC=gcc
 CFLAGS=-Wall -W -g
 
-robotswar:	$(OBJ) header.h
+robotswar:	$(OBJ) header.h include_player_fct.h
 			$(CC) $(OBJ) -o robotswar
 
-robot.tab.c : robot.y
-	bison robot.y
+lex.yy.c : lex_analyze.l
+	flex lex_analyze.l
 
-lex.yy.c : robot.l
-	flex robot.l
+compiler.tab.c : compiler.y
+	bison compiler.y
 
-robot.tab.o : robot.tab.c lex.yy.c
+compiler.tab.o : compiler.tab.c lex.yy.c
 
 %.o:		%.c
 			$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm rm -f *.tab.c lex.yy.c robotswar core *~
+	rm -f *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c *_robot.c
+	touch include_player_fct.h get_players_fonc.c

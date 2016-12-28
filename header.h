@@ -55,8 +55,7 @@ struct player{
 	listvar varlist;
 	coord loc;
 	char onbase;
-	char **code;
-	char *text;
+    unsigned short number;
 };
 typedef struct player player;
 
@@ -103,6 +102,13 @@ typedef struct cellint cellint;
 typedef struct cellint * listint;
 
 
+/* functions list */
+typedef void (*p_fct)();
+typedef struct listfunction{
+    p_fct p_fct[MAX_ROBOTS];
+    unsigned short n;
+} listfunction;
+
 /* globals */
 extern listplay playerslist; //list of players
 extern listaction actionslist; //list of players' actions for this turn
@@ -113,6 +119,11 @@ extern unsigned short nlvl; //size of the level
 extern char * currentaction; //string used to display an action being done
 extern char reading; //indicate if a player's code is being read (for managment of signals)
 extern char error; //indicate if a player's code provoqued an error (to be able to stop reading it)
+extern player *current_p; //current player whose code is being compiled
+extern FILE * current_p_file; //file which is the result of the current player's compiled code
+extern FILE * include_player_fct; //file in which we include players' compiled file
+extern FILE * get_players_fonc; //file in which we write the code to get players' function
+extern listfunction functionlist;
 
 
 /* prototypes */
@@ -126,6 +137,7 @@ void end(unsigned short);
 //construct a player per valid code in ROBOTSDIR and add it to the game
 char getplayers();
 void freeplayer(player *);
+char compile_all();
 
 /* verifcode.c */
 //syntax analyzer of a code, display eventual first error found
@@ -166,4 +178,16 @@ void cleangame();
 void ctrlC(int);
 void div0(int);
 
+/* players_code.c */
+//interact with the player's compiled code
+void activate(player *);
+void create_action(char, int, int);
+
+/* compiler.tab.c */
+// compiler's parsing
+int yyparse();
+
+/* get_players_fonc.c */
+// inititalisation of function list, only exists if the compiler has been launched
+void init_functionlist();
 #endif

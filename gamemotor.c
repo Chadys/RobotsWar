@@ -22,7 +22,12 @@ void start()
 	while(current_turn <= MAX_TURN)
 	{
 		n_living_player=0;
-		for(tmp = playerslist; tmp; n_living_player+=readcode(tmp->play), tmp = tmp->next);
+		for(tmp = playerslist; tmp; tmp = tmp->next){
+            if(tmp->play->life){
+                n_living_player++;
+                activate(tmp->play);
+            }
+        }
 
 		if(n_living_player<2){
 			end(n_living_player);

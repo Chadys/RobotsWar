@@ -1,0 +1,16 @@
+]
+*_robot.c
+*.tab.c
+lex.yy.c
+robotswar
+core
+*~
+*.o
+
+#IDE
+*.kdev4
+*.kate-swp
+
+#System Files
+.DS_Store
+Thumbs.db
