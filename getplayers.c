@@ -5,6 +5,7 @@ FILE * get_players_fonc;
 player *current_p;
 FILE * current_p_file;
 listfunction functionlist;
+extern FILE *yyin;
 
 //return all the names of the .robot files
 char **getplayersfiles(char mode)
@@ -124,36 +125,79 @@ char compile_all(){
     return 1;
 }
 
-char compile(char *filename){
-    char * name;
+char compile(char *source_filename){
+    char *name, *dest_filename, *temp;
     int r;
     static unsigned short num = 0;
+    FILE *sourcefile;
+    size_t length;
     
-    name=strndup(filename,strlen(filename)-6); //copy the filename without .robot
+    length = strlen(source_filename);
+    name=strndup(source_filename,length-6); //copy the filename without .robot
     if(!name){
-        fprintf(stderr, "Error in file compile.c, line %d\n", __LINE__);
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
         perror("strndup");
         return 0;
     }
-    current_p_file = fopen(filename, "w");
-    if(!current_p_file){
-        fprintf(stderr, "Error in file compile.c, line %d\n", __LINE__);
-        perror("fopen");
+    printf("\nAnalysing %s's file :\n",name);
+    dest_filename = malloc((length+3)*sizeof(char)); //add size for ".c" and NUL
+    if(!dest_filename){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
         free(name);
         return 0;
     }
+    strcpy(dest_filename, name);
+    strcpy(dest_filename+length-6, "_robot.c");
+    
+    temp=malloc((length+strlen(ROBOTSDIR)+2)*sizeof(char)); //to concatenate the path to playerfile and the player file name separated by "/", and the terminating NUL
+    if (!temp){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
+        free(name);
+        free(dest_filename);
+        return 0;
+    }
+    strcpy(temp,ROBOTSDIR);
+    strcat(temp,"/");
+    strcat(temp,source_filename);
+    
+    sourcefile = fopen(temp, "r");
+    free(temp);
+    if(!sourcefile){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("fopen");
+        free(name);
+        free(dest_filename);
+        return 0;
+    }
+    
+    current_p_file = fopen(dest_filename, "w");
+    if(!current_p_file){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("fopen");
+        free(name);
+        free(dest_filename);
+        fclose(sourcefile);
+        return 0;
+    }
     fprintf(current_p_file, "#include \"header.h\"\n\nvoid %s(){\n", name);
+    yyin = sourcefile;
     r =  yyparse();
     fclose(current_p_file);
+    fclose(sourcefile);
     if(r){
-        remove(filename);
+        remove(dest_filename);
         printf("Player's file not added, errors have been encountered\n");
+        free(dest_filename);
+        free(name);
         return 0;
     }
     fprintf(get_players_fonc, "\tfunctionlist.p_fct[%d] = %s;\n\tfunctionlist.n++;\n", num, name);
     fprintf(include_player_fct, "void %s();\n", name);
     num++;
     printf("Ok!\n");
+    free(dest_filename);
     free(name);
     return 1;
 }
@@ -223,7 +267,7 @@ int create_player(char * nomjoueur, char * color, int num, coord c){
 	player *joueur;
 	listplay add;
 
-    
+    printf("\nLoading %s's file :\n",nomjoueur);
 	joueur=malloc(sizeof(player));
 	if(!joueur){
 		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);

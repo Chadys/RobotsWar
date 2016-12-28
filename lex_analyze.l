@@ -1,6 +1,5 @@
 %option noyywrap
 
-    void init_chaine();
     char *get_simple_chaine(char);
     char *get_chaine();
     int getvalue(char *);
@@ -76,6 +75,8 @@ char * get_chaine(char * s, int length){
     char **test;
     int i;
 
+    if(!nchaines)
+        init_chaine();
     for(i = 8; i < nchaines ; ++i)
         if (!strcmp(chaines[i], s))
             return chaines[i];
@@ -92,6 +93,10 @@ char * get_chaine(char * s, int length){
 
 /* simple_chaine  --  renvoie une representation unique d'un mot-clef */
 char * get_simple_chaine(char c){
+    
+    if(!nchaines)
+        init_chaine();
+        
     switch(c){
         case '=':
             return chaines[0];
