@@ -95,7 +95,7 @@ char compile_all(){
         free(players);
         return 0;
     }
-    fprintf(get_players_fonc, "#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
+    fprintf(get_players_fonc, "#include \"header.h\"\n#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
     
     for(i = 0; i < MAX_ROBOTS; i++){
         if(!*(players + i))
@@ -110,6 +110,7 @@ char compile_all(){
             
         free(*(players+i));
     }
+    /*TODO nettoyer hash table */
     free(players);
     fprintf(get_players_fonc, "}");
     fclose(include_player_fct);
@@ -244,9 +245,6 @@ char getplayers(){
         nplayers++;
 	}
 	free(players);
-    fprintf(get_players_fonc, "}");
-    fclose(include_player_fct);
-    fclose(get_players_fonc);
 	if(i<2){
 		fprintf(stderr, "\nThis game needs a least two files\n");
 		return 0;

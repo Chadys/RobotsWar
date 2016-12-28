@@ -18,6 +18,7 @@ void start()
 	int current_turn = 0;
 	listplay tmp;
 	listaction actiontmp;
+    init_functionlist();
 
 	while(current_turn <= MAX_TURN)
 	{

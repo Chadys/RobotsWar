@@ -2,11 +2,11 @@
 
 listplay playerslist=NULL;
 listaction actionslist=NULL;
+jmp_buf ebuf;
 
 int main(){
 	listplay temp;
 	int i;
-	jmp_buf ebuf;
 
 	srand(time(NULL));
 	i=atexit(cleangame);
@@ -25,7 +25,8 @@ int main(){
             printf("Invalid entry, please try again.\n");;
     if(i=='c'){
         if(compile_all()){
-            printf("Successful compilation, you can now restart the game to play with your robots !\n");
+            printf("\nSuccessful compilation, you can now restart the game to play with your robots !\n\n\nReloading executable :\n\n");
+            system("make reload ; make -j4");
             exit(EXIT_SUCCESS);
         }
         printf("Compilation has failed\n");

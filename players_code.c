@@ -1,21 +1,20 @@
 #include "header.h"
 
 char reading=0;
-char error=0;
 
 
 //call a player's code
 //Do nothing if the code produce an error (like a division by 0)
 void activate(player *joueur){
+    int i;
     
     reading=1;
     current_p = joueur;
-    functionlist.p_fct[joueur->number]();
-        
-    if(error==1){
+    i = setjmp(ebuf);
+    if(i)
         fprintf(stderr, "Arithmetic error encountered while reading code of player %s\n", joueur->name);
-        error=0;
-    }
+    else
+        functionlist.p_fct[joueur->number]();
     reading=0;
     joueur->energy+=2;
     if(joueur->energy>MAX_ENERGY || joueur->onbase)
@@ -34,6 +33,11 @@ void create_action(char action, int arg1, int arg2){
         case TURNAROUND:
             priority=current_p->energy-1;
             act=malloc(sizeof(action));
+            if(!act){
+                fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                perror("malloc");
+                return;
+            }
             act->p=current_p;
             act->priority=current_p->energy-1;
             act->arg_0=arg1;
@@ -45,6 +49,11 @@ void create_action(char action, int arg1, int arg2){
         case SHOOT:
             priority=current_p->energy-3;
             act=malloc(sizeof(action));
+            if(!act){
+                fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                perror("malloc");
+                return;
+            }
             act->p=current_p;
             act->priority=current_p->energy-3;
             act->arg_0=arg1;
@@ -58,6 +67,11 @@ void create_action(char action, int arg1, int arg2){
             if(arg1 == 1) //FORWARD
                 priority++;
             act=malloc(sizeof(action));
+            if(!act){
+                fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                perror("malloc");
+                return;
+            }
             act->p=current_p;
             act->priority=priority;
             act->arg_0=arg1;

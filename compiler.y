@@ -3,6 +3,7 @@
 
 # define YYDEBUG 1
 int yylex();
+extern int lineno;
 void yyerror(const char *);
 char tab[MAX_TAB] = {'\t','\0'};
 void update_tab(char);
@@ -25,7 +26,7 @@ void update_tab(char);
 
 %%
 program : instrlist
-                { fprintf(current_p_file, "}"); }
+                { fprintf(current_p_file, "}"); lineno=1; }
 
 instrlist : instr
     | instrlist instr
@@ -49,11 +50,11 @@ value : YNUM
         value ')'
                 { fprintf(current_p_file, " )"); }
     | YLOOK
-                { fprintf(current_p_file, "look("); }
+                { fprintf(current_p_file, "ligne(current_p->loc, "); }
       value
                 { fprintf(current_p_file, ", "); }
       value
-                { fprintf(current_p_file, ")"); }
+                { fprintf(current_p_file, ").dir"); }
     | '-'
                 { fprintf(current_p_file, "-"); }
         value %prec UNARY
@@ -125,7 +126,9 @@ condlist : conds
                 { fprintf(current_p_file, "){\n"); }
                 
 conds : cond
-    | conds YTEST cond
+    | conds YCOND
+                { fprintf(current_p_file, " %s ", $2); }
+        cond
                 
 cond : value YTEST
                 { fprintf(current_p_file, " %s ", $2); }
@@ -141,7 +144,6 @@ cond : value YTEST
 # include "lex.yy.c"
 
 void yyerror(const char * message){
-  extern int lineno;
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", lineno, message, yytext);

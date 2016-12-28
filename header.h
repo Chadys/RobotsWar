@@ -128,12 +128,12 @@ extern char **level; //the level and all it contains
 extern unsigned short nlvl; //size of the level
 extern char * currentaction; //string used to display an action being done
 extern char reading; //indicate if a player's code is being read (for managment of signals)
-extern char error; //indicate if a player's code provoqued an error (to be able to stop reading it)
 extern player *current_p; //current player whose code is being compiled
 extern FILE * current_p_file; //file which is the result of the current player's compiled code
 extern FILE * include_player_fct; //file in which we include players' compiled file
 extern FILE * get_players_fonc; //file in which we write the code to get players' function
-extern listfunction functionlist;
+extern listfunction functionlist; //list of players function
+extern jmp_buf ebuf; //to make jump
 
 
 /* prototypes */

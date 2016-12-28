@@ -21,4 +21,9 @@ compiler.tab.o : compiler.tab.c lex.yy.c
 
 clean:
 	rm -f *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c *_robot.c compiler.output
-	touch include_player_fct.h get_players_fonc.c
+	touch include_player_fct.h
+	echo "void init_functionlist(){}" >> get_players_fonc.c
+	
+
+reload:
+	rm -f *.tab.c lex.yy.c robotswar core *~ compiler.output

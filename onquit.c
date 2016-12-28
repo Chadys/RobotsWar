@@ -44,7 +44,7 @@ void ctrlC(int __attribute__ ((unused))sig){
 //if a player's code produce a SIGFPE, stop reading it instead of exiting our program
 void div0(int __attribute__ ((unused))sig){
 	if(reading){
-		error=1;
+		longjmp(ebuf,1);
 		return;
 	}
 	fprintf(stderr, "Arithmetic error\n");
