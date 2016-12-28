@@ -177,6 +177,7 @@ void free_hash(hashtable *h)
         }
         h.alveole[i] = NULL;
     }
+    free(h.alveole);
 }
 
 /* ggetvalue -- renvoie la valeur correspondante à un mot-clef */
