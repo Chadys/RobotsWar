@@ -159,25 +159,18 @@ char *get_or_insert(hashtable *h, char *val)
 
 void free_hash(hashtable *h)
 {
-    for(int i = 0; i < h.n; i++)
+    for(int i = 0; i < h->n; i++)
     {
-        llist ptr = h.alveole[i];
-        while(ptr)
-        {
-            printf(" %s", ptr->val);
-            ptr = ptr->next;
-        }
-
-        llist ptr = h.alveole[i];
+        llist ptr = h->alveole[i];
         while(ptr)
         {
             llist tmp = ptr;
             ptr = ptr->next;
             free(tmp);
         }
-        h.alveole[i] = NULL;
+        h->alveole[i] = NULL;
     }
-    free(h.alveole);
+    free(h->alveole);
 }
 
 /* ggetvalue -- renvoie la valeur correspondante à un mot-clef */
