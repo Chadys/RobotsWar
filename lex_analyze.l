@@ -1,10 +1,28 @@
 %option noyywrap
+    #include <stdlib.h>
+    #include <string.h>
 
-    char *get_simple_chaine(char);
-    char *get_chaine();
+    typedef struct cell
+    {
+        char *val;
+        struct cell *next;
+    }cell;
+    typedef cell* llist;
+    
+    typedef struct hashtable
+    {
+        int n;
+        int p;
+        llist *alveole;
+    }hashtable;
+
+    int isprime(int);
+    unsigned long int sdbm(unsigned char *);
+    char *get_or_insert(hashtable *, char *);
+    hashtable init_hash(int);
+    void free_hash(hashtable *h);
     int getvalue(char *);
     int lineno = 1;
-
 %%
 
 "<="|">="|"!="|"==" { yylval.c = get_simple_chaine(yytext[0]); return YTEST; }
@@ -43,23 +61,52 @@
 
 %%
 
-static char ** chaines = NULL;
-static int nchaines = 0;
+hashtable h;
 
-/* init_chaine  --  renvoie une representation unique de la chaine argument */
-void init_chaine(){
+unsigned long int sdbm(unsigned char *str)
+{
+    unsigned long hash = 0;
+    int c;
+
+    while (c = *str++)
+        hash = c + (hash << 6) + (hash << 16) - hash;
+
+    return hash;
+}
+
+int isprime(int n)
+{
+    if(n <= 1)
+        return 0;
+    else if(n <= 3)
+        return 1;
+    else if(n % 2 == 0 || n % 3 == 0)
+        return 0;
+    int i = 5;
+    while(i*i <= n)
+    {
+        if(n % i == 0 || n % (i + 2) == 0)
+            return 0;
+        i += 6;
+    }
+    return 1;
+}
+
+void init_hash(int n)
+{
     int i;
+    hashtable ret;
 
-    nchaines = 8;
-    if((chaines = malloc(nchaines*sizeof(char*))) == NULL)
-        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
-    for(i = 0; i<6; i++)
-        if((chaines[i] = malloc(3*sizeof(char))) == NULL)
-            fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
-    if((chaines[6] = malloc(6*sizeof(char))) == NULL)
-        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
-    if((chaines[7] = malloc(9*sizeof(char))) == NULL)
-        fprintf(stderr,"Error: Line 0, Could not obtain enought memory to stock keywords\n");
+    ret.n = n;
+    ret.alveole = malloc(sizeof(llist) * n);
+    for(i = 0; i < n; i++)
+        ret.alveole[i] = NULL;
+    i = n;
+    while(!isprime(i)){
+        i++;
+    }
+    ret.p = i;
+
     strcpy(chaines[0], "==");
     strcpy(chaines[1], "!=");
     strcpy(chaines[2], "<=");
@@ -68,54 +115,67 @@ void init_chaine(){
     strcpy(chaines[5], "||");
     strcpy(chaines[6], "break");
     strcpy(chaines[7], "continue");
+
+    get_or_insert(&ret, "==");
+    get_or_insert(&ret, "!=");
+    get_or_insert(&ret, "<=");
+    get_or_insert(&ret, ">=");
+    get_or_insert(&ret, "&&");
+    get_or_insert(&ret, "||");
+    get_or_insert(&ret, "break");
+    get_or_insert(&ret, "continue");
+
+    return ret;
 }
 
-/* chaine  --  renvoie une representation unique de la chaine argument */
-char * get_chaine(char * s, int length){
-    char **test;
-    int i;
-
-    if(!nchaines)
-        init_chaine();
-    for(i = 8; i < nchaines ; ++i)
-        if (!strcmp(chaines[i], s))
-            return chaines[i];
-            
-    nchaines++;
-    if ((test = realloc(chaines, nchaines*sizeof(char*))) == NULL)
-        fprintf(stderr,"Error: Line %d, Could not obtain enought memory to stock variable %s\n",lineno, s);
-    chaines = test;
-    if((chaines[i] = malloc((length + 1)*sizeof(char))) == NULL)
-        fprintf(stderr,"Error: Line %d, Could not obtain enought memory to stock variable %s\n",lineno, s);
-    strcpy(chaines[i], s);
-    return chaines[i];
+char *get_or_insert(hashtable *h, char *val)
+{
+    int a = (murmur3(val, strlen(val)) % h->p) % h->n;
+    llist ptr = h->alveole[a];
+    if(!ptr)
+    {
+        ptr = h->alveole[a] = malloc(sizeof(llist));
+        ptr->val = strdup(val);
+        ptr->next = NULL;
+        return ptr->val;
+    }
+    else
+    {
+        if(!strcmp(ptr->val, val))
+            return ptr->val;
+        while(ptr->next)
+        {
+            ptr = ptr->next;
+            if(!strcmp(ptr->val, val))
+                return ptr->val;
+        }
+        llist add = malloc(sizeof(llist));
+        add->val = strdup(val);
+        add->next = NULL;
+        ptr->next = add;
+        return add->val;
+    }
 }
 
-/* simple_chaine  --  renvoie une representation unique d'un mot-clef */
-char * get_simple_chaine(char c){
-    
-    if(!nchaines)
-        init_chaine();
-        
-    switch(c){
-        case '=':
-            return chaines[0];
-        case '!':
-            return chaines[1];
-        case '<':
-            return chaines[2];
-        case '>':
-            return chaines[3];
-        case '&':
-            return chaines[4];
-        case '|':
-            return chaines[5];
-        case 'b':
-            return chaines[6];
-        case 'c':
-            return chaines[7];
-        default:
-            return NULL;
+void free_hash(hashtable *h)
+{
+    for(int i = 0; i < h.n; i++)
+    {
+        llist ptr = h.alveole[i];
+        while(ptr)
+        {
+            printf(" %s", ptr->val);
+            ptr = ptr->next;
+        }
+
+        llist ptr = h.alveole[i];
+        while(ptr)
+        {
+            llist tmp = ptr;
+            ptr = ptr->next;
+            free(tmp);
+        }
+        h.alveole[i] = NULL;
     }
 }
 
