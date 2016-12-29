@@ -75,15 +75,15 @@ continue
 Snooze
 
   How to know the contents of a case (see predefined values for the different possible contents) :
-Look line_number column_number (line and column numbers are in reference to the position and orientation of your robot, see figure 1)
+Look line_number, column_number (line and column numbers are in reference to the position and orientation of your robot, see figure 1)
 
   How to make your robot go forward :
-Go direction (see predefined values for the directions you can choose)
+Go direction (see predefined values for the directions you can choose from)
 
 Don't forget that if the case your robot is trying to go to isn't free (or to go throught one), it'll lose its turn
 
   How to make your robot shoot to a case :
-Shoot line_number column_number
+Shoot line_number, column_number
 
 Don't forget that if there is a wall between you and the case you want, your shooting will be stopped by it
 

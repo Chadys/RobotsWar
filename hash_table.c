@@ -1,19 +1,14 @@
 #include "header.h"
 
-
-
-int isprime(int);
-unsigned long int sdbm(unsigned char *);
-
 hashtable htable;
 
-unsigned long int sdbm(unsigned char *str)
+unsigned long int sdbm(char *str)
 {
     unsigned long hash = 0;
-    int c;
+    char * c;
 
-    while (c = *str++)
-        hash = c + (hash << 6) + (hash << 16) - hash;
+    for (c = str; *c; c++)
+        hash = *c + (hash << 6) + (hash << 16) - hash;
 
     return hash;
 }
@@ -36,24 +31,23 @@ int isprime(int n)
     return 1;
 }
 
-void init_hash(hashtable h)
+hashtable init_hash(hashtable h)
 {
     int i;
-    hashtable h;
 
     h.alveole = malloc(sizeof(llist) * h.n);
     for(i = 0; i < h.n; i++)
         h.alveole[i] = NULL;
-    i = h.n;
     while(!isprime(i)){
         i++;
     }
     h.p = i;
+    return h;
 }
 
 char *get_or_insert(hashtable h, char *val)
 {
-    int a = (sdbm(val, strlen(val)) % h->p) % h->n;
+    int a = (sdbm(val) % h.p) % h.n;
     llist ptr = h.alveole[a];
     if(!ptr)
     {

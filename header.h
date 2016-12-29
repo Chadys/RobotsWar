@@ -192,7 +192,7 @@ int yyparse();
 void init_functionlist();
 
 /* hash_table.c */
-void init_hash(hashtable);
+hashtable init_hash(hashtable);
 void free_hash(hashtable);
 
 #endif

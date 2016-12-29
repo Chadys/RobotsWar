@@ -1,16 +1,16 @@
 var found
-var case 
+var check 
 var i
 var j
 
 i = 1
 found = 0
 
-if Look 1 0 == WALL
+if Look 1, 0 == WALL
 	TurnAround RIGHT
 endif
 
-if Look 1 0 == GAMELIMIT
+if Look 1, 0 == GAMELIMIT
 	TurnAround RIGHT
 endif
 
@@ -22,18 +22,18 @@ while i < VISIONMAX/2
 	j = -i
 	while j < i+1
 
-		case = Look i j
+		check = Look i, j
 
-		if case == ROBOT
-			Shoot i j
+		if check == ROBOT
+			Shoot i, j
 		endif
 
-		if case == TREASURE
+		if check == TREASURE
 			found = 1
 			break
 		endif
 
-		if case == BASE
+		if check == BASE
 			found = 1
 			break
 		endif
@@ -47,18 +47,18 @@ if i+j > 7
 	Snooze
 endif
 	
-if Look 2 0 == NOTHING
+if Look 2, 0 == NOTHING
 	Go SPRINT
 endif
 
-if Look 1 0 == NOTHING
+if Look 1, 0 == NOTHING
 	Go FORWARD
 endif
 
-if Look 1 -1 == NOTHING
+if Look 1, -1 == NOTHING
 	Go LEFT
 endif
 
-if Look 1 1 == NOTHING
+if Look 1, 1 == NOTHING
 	Go RIGHT
 endif

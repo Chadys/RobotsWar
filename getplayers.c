@@ -98,7 +98,7 @@ char compile_all(){
     }
     fprintf(get_players_fonc, "#include \"header.h\"\n#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
     
-    init_hash(htable);
+    htable = init_hash(htable);
     for(i = 0; i < MAX_ROBOTS; i++){
         if(!*(players + i))
             break;
@@ -128,6 +128,7 @@ char compile_all(){
     return 1;
 }
 
+char valid_name(char*);
 char compile(char *source_filename){
     char *name, *dest_filename, *temp;
     int r;
@@ -140,6 +141,11 @@ char compile(char *source_filename){
     if(!name){
         fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
         perror("strndup");
+        return 0;
+    }
+    if(!valid_name(name)){
+        fprintf(stderr, "%s is not a valid robot's name,\nplease use only alphanumeric character or the underscore,\nand start the name with a letter", name);
+        free(name);
         return 0;
     }
     printf("\nAnalysing %s's file :\n",name);
@@ -309,4 +315,17 @@ void freeplayer(player *joueur){
 
 	free(joueur->name);
 	free(joueur);
+}
+
+
+char valid_name(char *name){
+    size_t i, len;
+    
+    len = strlen(name);
+    if(!isalpha(name[0]))
+        return 0;
+    for(i=1; i<len; i++)
+        if(name[i] != '_' && !isalnum(name[i]))
+            return 0;
+    return 1;
 }

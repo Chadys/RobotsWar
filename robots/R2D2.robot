@@ -7,11 +7,11 @@ y = 0
 
 while y <= VISIONMAX
 	while x <= VISIONMAX
-		found = Look x y
+		found = Look x, y
 
 		if found == ROBOT
 			if Energy > 3
-				Shoot x y
+				Shoot x, y
 			endif
 		endif
 		if found == BASE

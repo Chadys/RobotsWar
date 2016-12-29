@@ -19,6 +19,7 @@ void update_tab(char);
 %token <c> YNOM YTEST YCOND YLOOP
 %token <i> YNUM YDIR YSPRINT YBACK
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
+%token RESERVED_KEYWORD
 
 %left '+' '-'
 %left '*' '/' '%'
@@ -51,13 +52,13 @@ value : YNUM
                 { fprintf(current_p_file, " )"); }
     | YLOOK
                 { fprintf(current_p_file, "ligne(current_p->loc, "); }
-      value
+      value ','
                 { fprintf(current_p_file, ", "); }
       value
                 { fprintf(current_p_file, ").dir"); }
-    | '-'
-                { fprintf(current_p_file, "-"); }
-        value %prec UNARY
+    | '-' %prec UNARY
+                { fprintf(current_p_file, " -"); }
+      value
     | value '+'
                 { fprintf(current_p_file, " + "); }
       value
@@ -82,20 +83,33 @@ value : YNUM
                 
 whilexpr : YWHILE
                 { fprintf(current_p_file, "%swhile (", tab); update_tab(1); }
-           condlist whileinstr YENDWHILE
+           condlist whileinstrlist YENDWHILE
                 { update_tab(0); fprintf(current_p_file, "%s}\n", tab); }
 
-whileinstr : instr
-    | YLOOP
+whileinstrlist : whileinstr
+    | whileinstrlist whileinstr
+    
+whileinstr : YLOOP
                 { fprintf(current_p_file, "%s%s;\n", tab, $1); }
-    | instr whileinstr
-    | YLOOP
-                { fprintf(current_p_file, "%s%s;\n", tab, $1); }
-      whileinstr
+    | ifinwhileexpr
+    | YVAR YNOM
+                { fprintf(current_p_file, "%sint %s;\n", tab, $2); }
+    | YNOM '='
+                { fprintf(current_p_file, "%s%s = ", tab, $1); }
+       value
+                { fprintf(current_p_file, ";\n"); }
+    | whilexpr
+    | action
     
 ifexpr : YIF
                 { fprintf(current_p_file, "%sif (", tab); update_tab(1); }
          condlist instrlist YENDIF
+                { update_tab(0); fprintf(current_p_file, "%s}\n", tab); }
+         .elsexpr
+         
+ifinwhileexpr : YIF
+                { fprintf(current_p_file, "%sif (", tab); update_tab(1); }
+         condlist whileinstrlist YENDIF
                 { update_tab(0); fprintf(current_p_file, "%s}\n", tab); }
          .elsexpr
          
@@ -117,7 +131,7 @@ action : YSNOOZE
                 { fprintf(current_p_file, "%sreturn create_action(GO, %d, 0);\n", tab, $2); }
     | YSHOOT
                 { fprintf(current_p_file, "%sreturn create_action(SHOOT, ", tab); }
-      value
+      value ','
                 { fprintf(current_p_file, ", "); }
       value
                 { fprintf(current_p_file, ");\n"); }
@@ -147,6 +161,7 @@ void yyerror(const char * message){
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", lineno, message, yytext);
+  YY_FLUSH_BUFFER;
 }
 
 void update_tab(char add){

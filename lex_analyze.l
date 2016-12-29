@@ -7,6 +7,8 @@
     
 %%
 
+"auto"|"case"|"char"|"const"|"default"|"do"|"double"|"enum"|"extern"|"float"|"for"|"goto"|"int"|"long"|"register"|"return"|"short"|"signed"|"sizeof"|"static"|"struct"|"switch"|"typedef"|"union"|"unsigned"|"void"|"volatile"  { return RESERVED_KEYWORD; }
+
 "<="|">="|"!="|"==" { yylval.c = get_or_insert(htable, yytext); return YTEST; }
 "&&"|"||"       { yylval.c = get_or_insert(htable, yytext); return YCOND; }
 
@@ -35,11 +37,11 @@
 
 (?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(htable, yytext); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
-[-+*/%=()<>]      { return yytext[0]; }
+[-+*/%=()<>,]      { return yytext[0]; }
 
 [ \t\f]         ;
 \n              lineno += 1;
-.               { fprintf(stderr, "yylex : (%c)\n", yytext[0]); }
+.               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); }
 
 %%
 #include "header.h"

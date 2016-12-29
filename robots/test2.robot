@@ -9,11 +9,11 @@ turn = 0
 
 while x < VISIONMAX+1
 	while y < x+1
-		found = Look x y
+		found = Look x, y
 
 		if found == ROBOT
 			if Energy > 4
-				Shoot x y
+				Shoot x, y
 				Go x y
 			endif
 		endif

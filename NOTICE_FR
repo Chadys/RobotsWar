@@ -74,7 +74,7 @@ continue
 Snooze
 
   Comment connaître le contenu d'une case (voir les valeur prédéfinies pour connaître les différents contenus possibles)
-Look numéro_ligne numéro_colonne (les numéros des lignes et des colonnes sont en rapport avec la position et l'orientation de votre robot, voir l'image 1)
+Look numéro_ligne, numéro_colonne (les numéros des lignes et des colonnes sont en rapport avec la position et l'orientation de votre robot, voir l'image 1)
 
   Comment faire avancer votre robot :
 Go direction (voir les valeurs prédéfinies pour connaître les directions parmi lesquelles vous pouvez choisir)
@@ -82,7 +82,7 @@ Go direction (voir les valeurs prédéfinies pour connaître les directions parm
 N'oubliez pas que si votre robot essaye d'aller à une case qui n'ait pas libre (ou de passer par une), il perdra son tour.
 
   Comment faire tirer son robot sur une case :
-Shoot numéro_ligne numéro_colonne
+Shoot numéro_ligne, numéro_colonne
 
 N'oubliez pas que s'il y a un mur entre vous et la case sur laquelle vous tirez, le mur arrêtera la balle.
 
