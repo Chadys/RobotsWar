@@ -1,4 +1,4 @@
-CSRC = actions.c gamemotor.c getplayers.c level.c main.c onquit.c vision.c get_players_fonc.c players_code.c $(wildcard *_robot.c)
+CSRC = actions.c gamemotor.c getplayers.c level.c main.c onquit.c vision.c get_players_fonc.c players_code.c hash_table.c $(wildcard *_robot.c)
 SRC = $(CSRC) lex_analyze.l compiler.y
 OBJ = $(CSRC:.c=.o) compiler.tab.o
 CC = gcc

@@ -1,32 +1,14 @@
 %option noyywrap
-    #include <stdlib.h>
-    #include <string.h>
 
-    typedef struct cell
-    {
-        char *val;
-        struct cell *next;
-    }cell;
-    typedef cell* llist;
-    
-    typedef struct hashtable
-    {
-        int n;
-        int p;
-        llist *alveole;
-    }hashtable;
-
-    int isprime(int);
-    unsigned long int sdbm(unsigned char *);
-    char *get_or_insert(hashtable *, char *);
-    hashtable init_hash(int);
-    void free_hash(hashtable *h);
+    char *get_or_insert(hashtable, char *);
     int getvalue(char *);
     int lineno = 1;
+    extern hashtable htable;
+    
 %%
 
-"<="|">="|"!="|"==" { yylval.c = get_simple_chaine(yytext[0]); return YTEST; }
-"&&"|"||"       { yylval.c = get_simple_chaine(yytext[0]); return YCOND; }
+"<="|">="|"!="|"==" { yylval.c = get_or_insert(htable, yytext); return YTEST; }
+"&&"|"||"       { yylval.c = get_or_insert(htable, yytext); return YCOND; }
 
 "var"           { return YVAR; }
 "Look"          { return YLOOK; }
@@ -49,9 +31,9 @@
 "endwhile"      { return YENDWHILE; }
 "else"          { return YELSE; }
 "endelse"       { return YENDELSE; }
-"break"|"continue"  { yylval.c = get_simple_chaine(yytext[0]); return YLOOP; }
+"break"|"continue"  { yylval.c = get_or_insert(htable, yytext); return YLOOP; }
 
-(?i:[a-z][a-z0-9_]*)        { yylval.c = get_chaine(yytext, yyleng); return YNOM; }
+(?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(htable, yytext); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
 [-+*/%=()<>]      { return yytext[0]; }
 
@@ -60,118 +42,7 @@
 .               { fprintf(stderr, "yylex : (%c)\n", yytext[0]); }
 
 %%
-
-hashtable h;
-
-unsigned long int sdbm(unsigned char *str)
-{
-    unsigned long hash = 0;
-    int c;
-
-    while (c = *str++)
-        hash = c + (hash << 6) + (hash << 16) - hash;
-
-    return hash;
-}
-
-int isprime(int n)
-{
-    if(n <= 1)
-        return 0;
-    else if(n <= 3)
-        return 1;
-    else if(n % 2 == 0 || n % 3 == 0)
-        return 0;
-    int i = 5;
-    while(i*i <= n)
-    {
-        if(n % i == 0 || n % (i + 2) == 0)
-            return 0;
-        i += 6;
-    }
-    return 1;
-}
-
-void init_hash(int n)
-{
-    int i;
-    hashtable ret;
-
-    ret.n = n;
-    ret.alveole = malloc(sizeof(llist) * n);
-    for(i = 0; i < n; i++)
-        ret.alveole[i] = NULL;
-    i = n;
-    while(!isprime(i)){
-        i++;
-    }
-    ret.p = i;
-
-    strcpy(chaines[0], "==");
-    strcpy(chaines[1], "!=");
-    strcpy(chaines[2], "<=");
-    strcpy(chaines[3], ">=");
-    strcpy(chaines[4], "&&");
-    strcpy(chaines[5], "||");
-    strcpy(chaines[6], "break");
-    strcpy(chaines[7], "continue");
-
-    get_or_insert(&ret, "==");
-    get_or_insert(&ret, "!=");
-    get_or_insert(&ret, "<=");
-    get_or_insert(&ret, ">=");
-    get_or_insert(&ret, "&&");
-    get_or_insert(&ret, "||");
-    get_or_insert(&ret, "break");
-    get_or_insert(&ret, "continue");
-
-    return ret;
-}
-
-char *get_or_insert(hashtable *h, char *val)
-{
-    int a = (murmur3(val, strlen(val)) % h->p) % h->n;
-    llist ptr = h->alveole[a];
-    if(!ptr)
-    {
-        ptr = h->alveole[a] = malloc(sizeof(llist));
-        ptr->val = strdup(val);
-        ptr->next = NULL;
-        return ptr->val;
-    }
-    else
-    {
-        if(!strcmp(ptr->val, val))
-            return ptr->val;
-        while(ptr->next)
-        {
-            ptr = ptr->next;
-            if(!strcmp(ptr->val, val))
-                return ptr->val;
-        }
-        llist add = malloc(sizeof(llist));
-        add->val = strdup(val);
-        add->next = NULL;
-        ptr->next = add;
-        return add->val;
-    }
-}
-
-void free_hash(hashtable *h)
-{
-    for(int i = 0; i < h->n; i++)
-    {
-        llist ptr = h->alveole[i];
-        while(ptr)
-        {
-            llist tmp = ptr;
-            ptr = ptr->next;
-            free(tmp);
-        }
-        h->alveole[i] = NULL;
-    }
-    free(h->alveole);
-}
+#include "header.h"
 
 /* ggetvalue -- renvoie la valeur correspondante à un mot-clef */
 int getvalue(char *keyword){

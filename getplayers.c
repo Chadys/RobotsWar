@@ -60,9 +60,10 @@ char **getplayersfiles(char mode)
         nlvl=set_level(nplayers);
         if(!nlvl){
             fprintf(stderr, "The level couldn't be created.\n");
-            return 0;
+            return NULL;
         }
     }
+    htable.n = 20*nplayers; //the size of the hash table used by the syntax analyser, need to be able to contain all players's variables
 	return ret;
 }
 
@@ -97,6 +98,7 @@ char compile_all(){
     }
     fprintf(get_players_fonc, "#include \"header.h\"\n#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
     
+    init_hash(htable);
     for(i = 0; i < MAX_ROBOTS; i++){
         if(!*(players + i))
             break;
@@ -110,7 +112,7 @@ char compile_all(){
             
         free(*(players+i));
     }
-    /*TODO nettoyer hash table */
+    free_hash(htable);
     free(players);
     fprintf(get_players_fonc, "}");
     fclose(include_player_fct);
@@ -286,7 +288,6 @@ int create_player(char * nomjoueur, char * color, int num, coord c){
 	joueur->life=MAX_LIFE;
 	joueur->energy=MAX_ENERGY;
 	joueur->onbase=1;
-	joueur->varlist=NULL;
 	joueur->loc=c;
     joueur->number = (unsigned short) num;
     add=malloc(sizeof(cellplay));
@@ -305,14 +306,7 @@ int create_player(char * nomjoueur, char * color, int num, coord c){
 
 //free all memory used by a player
 void freeplayer(player *joueur){
-	listvar temp;
 
-	while(joueur->varlist){
-		temp=joueur->varlist->next;
-		free(joueur->varlist->name);
-		free(joueur->varlist);
-		joueur->varlist=temp;
-	}
 	free(joueur->name);
 	free(joueur);
 }

@@ -16,11 +16,10 @@
 #define ROBOTSDIR "robots" //name of the directory containing players' files
 #define MAX_FILE_NAME 256 //max number of letters of a file
 #define MAX_LETTERS_READ 100 //max number of letter read at once
-#define MAX_TAB 15 //max number of tabulation that can be printed to a player's compiled fil
+#define MAX_TAB 15 //max number of tabulation that can be printed to a player's compiled file
 #define MAX_LIFE 3 //starting number of a robot's life
 #define MAX_VISION 10 //range of a robot's field of view
 #define MAX_ENERGY 6 //starting number of a robot's energy units
-
 #define MAX_TURN 50 //number of turn max in a game
 #define MAX_TIMER 2000 //interval of read word in a player code before the robot lose 1 energy unit
 #define DELAY_ACTION 150000000 //pause delay between each player's action
@@ -36,15 +35,6 @@ struct coord{
 typedef struct coord coord;
 //Direction -> north=1, east=2, south=3, west=4
 
-/* variable list */
-struct cellvar{
-	char* name;
-	int val;
-	struct cellvar* next;
-};
-typedef struct cellvar cellvar;
-typedef cellvar * listvar;
-
 /* players */
 struct player{
 	char *color; //sûrement un code en hexa, il faudra voir les couleurs prédéfinies de sdl sinon
@@ -53,7 +43,6 @@ struct player{
 	unsigned short score;
 	unsigned short life;
 	unsigned short energy;
-	listvar varlist;
 	coord loc;
 	char onbase;
     unsigned short number;
@@ -110,6 +99,20 @@ typedef struct listfunction{
     unsigned short n;
 } listfunction;
 
+/* Hash table and hash cell */
+typedef struct cell
+{
+    char *val;
+    struct cell *next;
+}cell;
+typedef cell* llist;
+
+typedef struct hashtable
+{
+    int n;
+    int p;
+    llist *alveole;
+}hashtable;
 
 /* player's actions enum */
 typedef enum ACTION{
@@ -134,6 +137,7 @@ extern FILE * include_player_fct; //file in which we include players' compiled f
 extern FILE * get_players_fonc; //file in which we write the code to get players' function
 extern listfunction functionlist; //list of players function
 extern jmp_buf ebuf; //to make jump
+extern hashtable htable; //hash table for the lexical analyser
 
 
 /* prototypes */
@@ -148,11 +152,6 @@ void end(unsigned short);
 char getplayers();
 void freeplayer(player *);
 char compile_all();
-
-/* verifcode.c */
-//syntax analyzer of a code, display eventual first error found
-player * verif_code(player *);
-listvar findvar(char *,listvar);
 
 /* level.c */
 //construct a level (depending on player's number) with files in the levels/ directory
@@ -169,18 +168,9 @@ void turnaround(player *, int,int,short);
 void go(player *, int,int,short);
 void shoot(player *, int,int,short);
 
-/* interpreter.c */
-//the interpreter of a player's code
-unsigned short readcode(player *);
-
 /* vision.c */
 //return what a robot can see a a specific case
 coord ligne(coord, int, int);
-
-/* eval.c */
-//to calculate a value with a string
-int eval(player *, int);
-int eval_math(player *, char *);
 
 /* onquit.c */
 //free every allocated memory of the game
@@ -198,6 +188,11 @@ void create_action(char, int, int);
 int yyparse();
 
 /* get_players_fonc.c */
-// inititalisation of function list, only exists if the compiler has been launched
+// inititalisation of function list, only do something if the compiler has been launched
 void init_functionlist();
+
+/* hash_table.c */
+void init_hash(hashtable);
+void free_hash(hashtable);
+
 #endif
