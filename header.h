@@ -137,6 +137,7 @@ extern FILE * include_player_fct; //file in which we include players' compiled f
 extern FILE * get_players_fonc; //file in which we write the code to get players' function
 extern listfunction functionlist; //list of players function
 extern jmp_buf ebuf; //to make jump
+extern sigjmp_buf sigebuf; //to jump from signals
 extern hashtable htable; //hash table for the lexical analyser
 
 
@@ -192,7 +193,7 @@ int yyparse();
 void init_functionlist();
 
 /* hash_table.c */
-hashtable init_hash(hashtable);
+hashtable init_hash(int);
 void free_hash(hashtable);
 
 #endif

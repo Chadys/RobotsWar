@@ -20,10 +20,10 @@ compiler.tab.o : compiler.tab.c lex.yy.c
 			$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c *_robot.c compiler.output
+	rm -f *.o *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c *_robot.c compiler.output ]
 	touch include_player_fct.h
 	echo "void init_functionlist(){}" >> get_players_fonc.c
 	
 
 reload:
-	rm -f *.tab.c lex.yy.c robotswar core *~ compiler.output
+	rm -f *.tab.c lex.yy.c robotswar core *~ compiler.output *.o ]

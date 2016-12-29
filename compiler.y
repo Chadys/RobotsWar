@@ -161,6 +161,8 @@ void yyerror(const char * message){
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", lineno, message, yytext);
+  while(tab[1] != '\0')
+    update_tab(0);
   YY_FLUSH_BUFFER;
 }
 

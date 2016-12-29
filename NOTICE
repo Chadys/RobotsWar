@@ -16,7 +16,10 @@ Going to a base will completely recharge your robot.
 
 The game ends if there is only one robot left alive or if time is up.
 
-Once every player have finished their code, just launch the game by typing "make" and then "robotswar" on your terminal window and you'll be able to see your robots in action ! In game a robot is represented by a ^, >, v or < depending on its direction, a treasure is a $, a base is a @ and the = are walls.
+Once every player have finished their code, just launch the game by typing "make" and then "robotswar" on your terminal window.
+The game will ask you to compile your robots' files, do that first, then relaunch the executable and you'll be able to see your robots in action !
+If you change a file, you'll need to relaunch the compilation.
+In game a robot is represented by a ^, >, v or < depending on its direction, a treasure is a $, a base is a @ and the = are walls. 
 
 
 HOW TO PROVIDE A CODE FOR YOUR ROBOT :

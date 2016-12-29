@@ -98,7 +98,7 @@ char compile_all(){
     }
     fprintf(get_players_fonc, "#include \"header.h\"\n#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
     
-    htable = init_hash(htable);
+    htable = init_hash(htable.n);
     for(i = 0; i < MAX_ROBOTS; i++){
         if(!*(players + i))
             break;
@@ -144,7 +144,7 @@ char compile(char *source_filename){
         return 0;
     }
     if(!valid_name(name)){
-        fprintf(stderr, "%s is not a valid robot's name,\nplease use only alphanumeric character or the underscore,\nand start the name with a letter", name);
+        fprintf(stderr, "%s is not a valid robot's name,\nplease use only alphanumeric characters or the underscore, and start the name with a letter\n", name);
         free(name);
         return 0;
     }
@@ -211,11 +211,12 @@ char compile(char *source_filename){
     return 1;
 }
 
-int create_player(char *, char *, int, coord);
+char create_player(char *, char *, unsigned short, coord);
 //add each valid player to the game
 char getplayers(){
 	char **players;
-	int i,j, nplayers;
+	unsigned short i;
+	int j, nplayers;
 	char *COLORS[11]={"\e[31m","\e[94m","\e[93m","\e[32m","\e[35m","\e[36m","\e[91m","\e[92m","\e[95m","\e[96m","\e[97m"};
 	coord c;
 
@@ -269,7 +270,7 @@ char getplayers(){
 
 
  // create a player if the code in the file is valid and add it to the global list
-int create_player(char * nomjoueur, char * color, int num, coord c){
+char create_player(char * nomjoueur, char * color, unsigned short num, coord c){
 	player *joueur;
 	listplay add;
 
@@ -278,6 +279,7 @@ int create_player(char * nomjoueur, char * color, int num, coord c){
 	if(!joueur){
 		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
 		perror("malloc");
+        printf("Failed.\n");
 		return 0;
 	}
 
@@ -287,6 +289,7 @@ int create_player(char * nomjoueur, char * color, int num, coord c){
 		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
 		perror("strndup");
 		free(joueur);
+        printf("Failed.\n");
 		return 0;
 	}
 	joueur->treasure=0;
@@ -295,18 +298,20 @@ int create_player(char * nomjoueur, char * color, int num, coord c){
 	joueur->energy=MAX_ENERGY;
 	joueur->onbase=1;
 	joueur->loc=c;
-    joueur->number = (unsigned short) num;
+    joueur->number = num;
     add=malloc(sizeof(cellplay));
     if (!add){
         fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
         perror("malloc");
         freeplayer(joueur);
+        printf("Failed.\n");
         return 0;
     }
     add->play=joueur;
     add->next=playerslist;
     playerslist=add;
     num++;
+    printf("Ok !\n");
     return 1;
 }
 

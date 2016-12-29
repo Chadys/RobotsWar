@@ -7,15 +7,18 @@ jmp_buf ebuf;
 int main(){
 	listplay temp;
 	int i;
+    struct sigaction actINT, actFPE;
 
 	srand(time(NULL));
 	i=atexit(cleangame);
 	if(i)
 		fprintf(stderr, "Could not register function cleangame\n");
 	
-	if (signal(SIGINT,ctrlC) == SIG_ERR)
+    actINT.sa_handler = ctrlC;
+    actFPE.sa_handler = div0;
+	if (sigaction(SIGINT, &actINT, NULL))
 		perror("signal");
-	if (signal(SIGFPE,div0) == SIG_ERR)
+	if (sigaction(SIGFPE, &actFPE, NULL))
 		perror("signal");
 
     
@@ -26,7 +29,7 @@ int main(){
     if(i=='c'){
         if(compile_all()){
             printf("\nSuccessful compilation, you can now restart the game to play with your robots !\n\n\nReloading executable :\n\n");
-            system("make reload ; make -j4");
+            system("make");
             exit(EXIT_SUCCESS);
         }
         printf("Compilation has failed\n");

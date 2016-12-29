@@ -19,6 +19,7 @@ while y <= VISIONMAX
 			if Energy > 3
 				Shoot x, y
 			endif
+			x = x+1
 			continue
 		endif
 		if found == TREASURE

@@ -15,8 +15,10 @@ Aller à une aire de retour rechargera complètement votre robot.
 
 La partie se finit s'il n'y a plus qu'un robot en vie ou lorsque le nombre de tours maximums est atteint.
 
-Une fois que tous les joueurs ont fini leur code, lancez juste le jeu en tapant "make" puis "./robotswar" sur votre console et vous pourrez voir vos robots en action ! Pendant le jeu un robot est représenté par un ^, >, v ou < en fonction de sa direcction, un butin est un $, une aire de retour un @ et les = sont des murs.
-
+Une fois que tous les joueurs ont fini leur code, lancez juste le jeu en tapant "make" puis "./robotswar" sur votre console.
+Le jeu vous proposera de compiler les fichiers de vos robots, faites le puis relancez l'exécutable et vous pourrez voir vos robots en action !
+Si vous changez le contenu d'un fichier, vous devrez relancer la compilation.
+Pendant le jeu un robot est représenté par un ^, >, v ou < en fonction de sa direcction, un butin est un $, une aire de retour un @ et les = sont des murs.
 
 COMMENT FOURNIR UN CODE À SON ROBOT :
 

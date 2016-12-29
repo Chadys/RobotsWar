@@ -31,11 +31,22 @@ int isprime(int n)
     return 1;
 }
 
-hashtable init_hash(hashtable h)
+hashtable init_hash(int n)
 {
     int i;
-
+    hashtable h;
+    
+    h.n = n;
+    if(n==0){
+        fprintf(stderr, "Hashtable cannot have a size of 0");
+        return h;
+    }
     h.alveole = malloc(sizeof(llist) * h.n);
+    if (!h.alveole){
+        fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
+        perror("malloc");
+        return h;
+    }
     for(i = 0; i < h.n; i++)
         h.alveole[i] = NULL;
     while(!isprime(i)){
@@ -47,11 +58,20 @@ hashtable init_hash(hashtable h)
 
 char *get_or_insert(hashtable h, char *val)
 {
-    int a = (sdbm(val) % h.p) % h.n;
-    llist ptr = h.alveole[a];
+    int a;
+    llist ptr, add;
+    
+    a = (sdbm(val) % h.p) % h.n;
+    ptr = h.alveole[a];
+    
     if(!ptr)
     {
-        ptr = h.alveole[a] = malloc(sizeof(llist));
+        ptr = h.alveole[a] = malloc(sizeof(cell));
+        if(!ptr){
+            fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
+            perror("malloc");
+            return NULL;
+        }
         ptr->val = strdup(val);
         ptr->next = NULL;
         return ptr->val;
@@ -66,7 +86,12 @@ char *get_or_insert(hashtable h, char *val)
             if(!strcmp(ptr->val, val))
                 return ptr->val;
         }
-        llist add = malloc(sizeof(llist));
+        add = malloc(sizeof(cell));
+        if(!add){
+            fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
+            perror("malloc");
+            return NULL;
+        }
         add->val = strdup(val);
         add->next = NULL;
         ptr->next = add;
@@ -76,13 +101,16 @@ char *get_or_insert(hashtable h, char *val)
 
 void free_hash(hashtable h)
 {
+    llist ptr, tmp;
+    
     for(int i = 0; i < h.n; i++)
     {
-        llist ptr = h.alveole[i];
+        ptr = h.alveole[i];
         while(ptr)
         {
-            llist tmp = ptr;
+            tmp = ptr;
             ptr = ptr->next;
+            free(tmp->val);
             free(tmp);
         }
         h.alveole[i] = NULL;

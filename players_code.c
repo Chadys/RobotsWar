@@ -1,7 +1,7 @@
 #include "header.h"
 
 char reading=0;
-
+sigjmp_buf sigebuf;
 
 //call a player's code
 //Do nothing if the code produce an error (like a division by 0)
@@ -10,7 +10,7 @@ void activate(player *joueur){
     
     reading=1;
     current_p = joueur;
-    i = setjmp(ebuf);
+    i = sigsetjmp(sigebuf, 1);
     if(i)
         fprintf(stderr, "Arithmetic error encountered while reading code of player %s\n", joueur->name);
     else
@@ -22,11 +22,11 @@ void activate(player *joueur){
 }
 
 // add to the actionslist the action called by the robot
-void create_action(char action, int arg1, int arg2){
+void create_action(char choice, int arg1, int arg2){
     short priority;
     listaction act;
     
-    switch(action){
+    switch(choice){
         case SNOOZE:
             current_p->energy++;
             return;
@@ -80,4 +80,8 @@ void create_action(char action, int arg1, int arg2){
             act->next=NULL;
             add_action(act);
     }
+}
+
+char update_energy(unsigned int action_read){
+    
 }
