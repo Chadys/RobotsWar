@@ -22,6 +22,7 @@ void update_tab(char);
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
 %token RESERVED_KEYWORD
 
+%left ','
 %left '+' '-'
 %left '*' '/' '%'
 %precedence UNARY
