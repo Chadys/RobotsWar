@@ -82,6 +82,14 @@ void create_action(char choice, int arg1, int arg2){
     }
 }
 
-char update_energy(unsigned int action_read){
-    
+char update_energy(unsigned int *action_read){
+    if (*action_read >= MAX_TIMER){
+        current_p->energy--;
+        *action_read=0;
+        if (!current_p->energy){
+            fprintf(stderr, "An infinite loop was found or too much time was taken while parsing code of player %s\n", current_p->name);
+            return 0;
+        }
+    }
+    return 1;
 }

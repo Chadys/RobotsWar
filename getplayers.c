@@ -190,7 +190,7 @@ char compile(char *source_filename){
         fclose(sourcefile);
         return 0;
     }
-    fprintf(current_p_file, "#include \"header.h\"\n\nvoid %s(){\n", name);
+    fprintf(current_p_file, "#include \"header.h\"\n\nvoid %s(){\nunsigned int timer = 0;\n", name);
     yyin = sourcefile;
     r =  yyparse();
     fclose(current_p_file);

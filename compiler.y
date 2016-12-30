@@ -2,6 +2,7 @@
 # include "header.h"
 
 # define YYDEBUG 1
+
 int yylex();
 extern int lineno;
 void yyerror(const char *);
@@ -33,11 +34,11 @@ instrlist : instr
     | instrlist instr
     
 instr : YVAR YNOM
-                { fprintf(current_p_file, "%sint %s;\n", tab, $2); }
+                { fprintf(current_p_file, "%sint %s;\nYCHECKTIMER(1);\n", tab, $2); }
     | YNOM '='
                 { fprintf(current_p_file, "%s%s = ", tab, $1); }
        value
-                { fprintf(current_p_file, ";\n"); }
+                { fprintf(current_p_file, ";\nYCHECKTIMER(3);\n"); }
     | whilexpr
     | ifexpr
     | action
@@ -93,11 +94,11 @@ whileinstr : YLOOP
                 { fprintf(current_p_file, "%s%s;\n", tab, $1); }
     | ifinwhileexpr
     | YVAR YNOM
-                { fprintf(current_p_file, "%sint %s;\n", tab, $2); }
+                { fprintf(current_p_file, "%sint %s;\nYCHECKTIMER(1);\n", tab, $2); }
     | YNOM '='
                 { fprintf(current_p_file, "%s%s = ", tab, $1); }
        value
-                { fprintf(current_p_file, ";\n"); }
+                { fprintf(current_p_file, ";\nYCHECKTIMER(1);\n"); }
     | whilexpr
     | action
     
@@ -115,7 +116,7 @@ ifinwhileexpr : YIF
          
 .elsexpr : %empty
     | YELSE
-                { fprintf(current_p_file, "%selse {", tab); update_tab(1); }
+                { fprintf(current_p_file, "%selse {\nYCHECKTIMER(1);\n", tab); update_tab(1); }
       instrlist YENDELSE
                 { update_tab(0); fprintf(current_p_file, "%s}\n", tab); }
 
@@ -137,7 +138,7 @@ action : YSNOOZE
                 { fprintf(current_p_file, ");\n"); }
 
 condlist : conds
-                { fprintf(current_p_file, "){\n"); }
+                { fprintf(current_p_file, "){\nYCHECKTIMER(1);\n"); }
                 
 conds : cond
     | conds YCOND

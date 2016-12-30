@@ -21,10 +21,11 @@
 #define MAX_VISION 10 //range of a robot's field of view
 #define MAX_ENERGY 6 //starting number of a robot's energy units
 #define MAX_TURN 50 //number of turn max in a game
-#define MAX_TIMER 2000 //interval of read word in a player code before the robot lose 1 energy unit
+#define MAX_TIMER 500 //interval of read word in a player code before the robot lose 1 energy unit
 #define DELAY_ACTION 150000000 //pause delay between each player's action
 #define DELAY_TURN 100000000 //pause delay between each game turn
 
+# define YCHECKTIMER(N) timer+=N; if(!update_energy(&timer)) return; //in players' file, check the timer and exit the function if too much time was taken
 
 /* coords */
 struct coord{
@@ -183,6 +184,7 @@ void div0(int);
 //interact with the player's compiled code
 void activate(player *);
 void create_action(char, int, int);
+char update_energy(unsigned int *);
 
 /* compiler.tab.c */
 // compiler's parsing
