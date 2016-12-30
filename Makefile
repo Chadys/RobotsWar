@@ -1,4 +1,4 @@
-CSRC = actions.c gamemotor.c getplayers.c level.c main.c onquit.c vision.c get_players_fonc.c players_code.c hash_table.c $(wildcard *_robot.c)
+CSRC = actions.c gamemotor.c getplayers.c level.c main.c onquit.c vision.c get_players_fonc.c players_code.c hash_table.c
 SRC = $(CSRC) lex_analyze.l compiler.y
 OBJ = $(CSRC:.c=.o) compiler.tab.o
 CC = gcc
@@ -20,7 +20,7 @@ compiler.tab.o : compiler.tab.c lex.yy.c
 			$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f *.o *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c *_robot.c compiler.output ]
+	rm -f *.o *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c *robot.c compiler.output ]
 	touch include_player_fct.h
 	echo "void init_functionlist(){}" >> get_players_fonc.c
 	

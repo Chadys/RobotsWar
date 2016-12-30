@@ -84,7 +84,7 @@ int main(){
         if(time_user_file > time_so_file)
         {
         	robots_c_files[curr_need_compile] = malloc(sizeof(char) * (len_robot_name + 3));
-        	sprintf(robots_c_files[i], "%s.c", robots_user_files[i]);
+        	sprintf(robots_c_files[i], "%s.robot.c", robots_names[i]);
         	robots_need_compile[curr_need_compile++] = i; 
         }
         else
@@ -118,6 +118,7 @@ int main(){
 	int r = 0;
 	htable.n = 1000;
 	htable = init_hash(htable.n);
+	char *call = malloc(sizeof(char) * (3 * MAX_FILE_NAME));
     for(i = 0; i < curr_need_compile; i++)
     {
     	printf("Compiling %s...\n", robots_names[robots_need_compile[i]]);
@@ -133,10 +134,14 @@ int main(){
     		continue;
     	}
     	yyin = sourcefile;
-    	printf("now\n");
+    	fprintf(current_p_file, "#include \"header.h\"\n\nvoid proceed(){\nunsigned int timer = 0;\n");
     	r =  yyparse();
     	fclose(sourcefile);
     	fclose(current_p_file);
+    	if(r)
+    		continue;
+    	sprintf(call, "gcc %s --shared -fPIC -o %s", robots_c_files[robots_need_compile[i]], robots_so_files[robots_need_compile[i]]);
+    	system(call);
     }
 
     /*
