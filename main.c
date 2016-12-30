@@ -15,7 +15,6 @@ listplay playerslist=NULL;
 listaction actionslist=NULL;
 jmp_buf ebuf;
 
-
 extern FILE *yyin;
 
 int main(){
@@ -34,8 +33,6 @@ int main(){
 		perror("signal");
 	if (sigaction(SIGFPE, &actFPE, NULL))
 		perror("signal");
-
-
 
 	void **so_handlers = NULL;
 	struct stat attr;
@@ -117,8 +114,9 @@ int main(){
     	printf("%s\n", robots_names[robots_need_compile[i]]);// -> %s -> %s\n", robots_names[robots_need_compile[i]], robots_c_files[robots_need_compile[i]], robots_so_files[robots_need_compile[i]]);
     printf("==========\n");
 	
-	FILE *sourcefile, *current_p_file;
+	FILE *sourcefile;
 	int r = 0;
+	htable.n = 1000;
 	htable = init_hash(htable.n);
     for(i = 0; i < curr_need_compile; i++)
     {
