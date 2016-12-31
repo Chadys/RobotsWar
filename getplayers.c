@@ -98,7 +98,6 @@ char compile_all(){
     }
     fprintf(get_players_fonc, "#include \"header.h\"\n#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
     
-    htable = init_hash(htable.n);
     for(i = 0; i < MAX_ROBOTS; i++){
         if(!*(players + i))
             break;

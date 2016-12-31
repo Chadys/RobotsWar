@@ -1,13 +1,11 @@
-%option noyywrap
+%option noyywrap yylineno
 
     char *get_or_insert(hashtable, char *);
     int getvalue(char *);
-    int lineno = 1;
     extern hashtable htable;
+    #define YY_USER_INIT htable = init_hash(htable.n)
     
 %%
-
-"auto"|"case"|"char"|"const"|"default"|"do"|"double"|"enum"|"extern"|"float"|"for"|"goto"|"int"|"long"|"register"|"return"|"short"|"signed"|"sizeof"|"static"|"struct"|"switch"|"typedef"|"union"|"unsigned"|"void"|"volatile"  { return RESERVED_KEYWORD; }
 
 "<="|">="|"!="|"==" { yylval.c = get_or_insert(htable, yytext); return YTEST; }
 "&&"|"||"       { yylval.c = get_or_insert(htable, yytext); return YCOND; }
@@ -39,14 +37,12 @@
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
 [-+*/%=()<>,]      { return yytext[0]; }
 
-[ \t\f]         ;
-\n              lineno += 1;
-.               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); }
+[ \t\f\n]         ;
 
 %%
 #include "header.h"
 
-/* ggetvalue -- renvoie la valeur correspondante à un mot-clef */
+/* getvalue -- renvoie la valeur correspondante à un mot-clef */
 int getvalue(char *keyword){
 
     if(!strcmp(keyword, "VISIONMAX"))

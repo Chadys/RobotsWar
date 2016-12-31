@@ -20,7 +20,6 @@ void update_tab(char);
 %token <c> YNOM YTEST YCOND YLOOP
 %token <i> YNUM YDIR YSPRINT YBACK
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
-%token RESERVED_KEYWORD
 
 %left ','
 %left '+' '-'
@@ -162,7 +161,7 @@ cond : value YTEST
 void yyerror(const char * message){
   extern char * yytext;
 
-  fprintf(stderr, "%d: %s at %s\n", lineno, message, yytext);
+  fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);
   while(tab[1] != '\0')
     update_tab(0);
   YY_FLUSH_BUFFER;
