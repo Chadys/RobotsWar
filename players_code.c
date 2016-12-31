@@ -14,7 +14,7 @@ void activate(player *joueur){
     if(i)
         fprintf(stderr, "Arithmetic error encountered while reading code of player %s\n", joueur->name);
     else
-        functionlist.p_fct[joueur->number]();
+        joueur->fct();
     reading=0;
     joueur->energy+=2;
     if(joueur->energy>MAX_ENERGY || joueur->onbase)

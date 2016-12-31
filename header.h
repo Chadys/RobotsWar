@@ -10,11 +10,27 @@
 #include <limits.h>
 #include <math.h>
 #include <setjmp.h>
+#include <dlfcn.h>
+#include <sys/types.h> 
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
+
+#ifdef __APPLE__
+	#ifndef st_mtime
+		#define st_mtime st_mtimespec.tv_sec
+	#endif
+#endif
+
+
+
+#define ALLOWED_CHARACTERS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
 #define TMP_FILE "tmplist.txt" //name given to a temporary file
 #define MAX_ROBOTS 50 //max number of players
 #define ROBOTSDIR "robots" //name of the directory containing players' files
 #define MAX_FILE_NAME 256 //max number of letters of a file
+#define MAX_ROBOT_NAME 100
 #define MAX_LETTERS_READ 100 //max number of letter read at once
 #define MAX_TAB 15 //max number of tabulation that can be printed to a player's compiled file
 #define MAX_LIFE 3 //starting number of a robot's life
@@ -25,7 +41,20 @@
 #define DELAY_ACTION 150000000 //pause delay between each player's action
 #define DELAY_TURN 100000000 //pause delay between each game turn
 
+
+#define KNRM  "\x1B[0m"
+#define KGRY  "\x1B[30;1m"
+#define KRED  "\x1B[31;1m"
+#define KGRN  "\x1B[32;1m"
+#define KYEL  "\x1B[33m"
+#define KBLU  "\x1B[34;1m"
+#define KMAG  "\x1B[35m"
+#define KCYN  "\x1B[36m"
+#define KWHT  "\x1B[37m"
+
 # define YCHECKTIMER(N) timer+=N; if(!update_energy(&timer)) return; //in players' file, check the timer and exit the function if too much time was taken
+
+typedef void (*robotfct)(void);
 
 /* coords */
 struct coord{
@@ -47,6 +76,8 @@ struct player{
 	coord loc;
 	char onbase;
     unsigned short number;
+    robotfct fct;
+    void *handler;
 };
 typedef struct player player;
 
@@ -93,13 +124,6 @@ typedef struct cellint cellint;
 typedef struct cellint * listint;
 
 
-/* functions list */
-typedef void (*p_fct)();
-typedef struct listfunction{
-    p_fct p_fct[MAX_ROBOTS];
-    unsigned short n;
-} listfunction;
-
 /* Hash table and hash cell */
 typedef struct cell
 {
@@ -134,15 +158,17 @@ extern char * currentaction; //string used to display an action being done
 extern char reading; //indicate if a player's code is being read (for managment of signals)
 extern player *current_p; //current player whose code is being compiled
 extern FILE * current_p_file; //file which is the result of the current player's compiled code
-extern FILE * include_player_fct; //file in which we include players' compiled file
-extern FILE * get_players_fonc; //file in which we write the code to get players' function
-extern listfunction functionlist; //list of players function
+extern FILE *yyin;
 extern jmp_buf ebuf; //to make jump
 extern sigjmp_buf sigebuf; //to jump from signals
 extern hashtable htable; //hash table for the lexical analyser
 
 
 /* prototypes */
+
+
+
+
 
 /* gamemotor.c */
 //the game loop and handler of the actions list, and the ending displayer
@@ -151,9 +177,14 @@ void end(unsigned short);
 
 /* getplayer.c */
 //construct a player per valid code in ROBOTSDIR and add it to the game
-char getplayers();
+char create_player(char * nomjoueur, char * color, unsigned short num, coord c, void *handler, robotfct function);
+char build_game(char **p_names, robotfct *functions, void **handlers, int nb_players);
 void freeplayer(player *);
-char compile_all();
+char **get_rebot_names_remove_double(int *nb_robots); //return all valid .robot path and remove .so that don't have .robot associated
+char *get_robots_need_compile(char **robots_user_files, char **robots_so_files, int size); // return a boolean array that indicates all .so files that needs to be compiled
+void get_so_c_files(char **robots_user_files, int size, char ***r_so, char ***r_c); // get .c path and .so path from all .robot path
+void compile_needed(char **need_compile, int size, char **r_robot, char **r_so, char **r_c); // compile all files that are marked as compillable
+int load_so_functions(char **r_so, char *need_compile, int size, void ***handlers, robotfct **functions, char ***names); // load .so libraries files in memory and grab all 'proceed' functions to make them available. also fill indexes tab to all loaded robots indexes
 
 /* level.c */
 //construct a level (depending on player's number) with files in the levels/ directory

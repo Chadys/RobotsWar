@@ -5,8 +5,8 @@ CC = gcc
 CFLAGS = -Wall -W -g
 BFLAGS = --warnings=all -v
 
-robotswar:	$(OBJ) header.h include_player_fct.h
-			$(CC) $(OBJ) -o robotswar
+robotswar:	$(OBJ) header.h
+			$(CC) $(OBJ) -g -o robotswar -ldl -Wl,--export-dynamic
 
 lex.yy.c : lex_analyze.l
 	flex lex_analyze.l
@@ -20,10 +20,8 @@ compiler.tab.o : compiler.tab.c lex.yy.c
 			$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f *.o *.tab.c lex.yy.c robotswar core *~ include_player_fct.h get_players_fonc.c robots/*robot.c compiler.output ]
-	touch include_player_fct.h
-	echo "void init_functionlist(){}" >> get_players_fonc.c
+	rm -f *.o *.tab.c lex.yy.c robotswar core *~ compiler.output
 	
 
 reload:
-	rm -f *.tab.c lex.yy.c robotswar core *~ compiler.output *.o ]
+	rm -f *.tab.c lex.yy.c robotswar core *~ compiler.output *.o
