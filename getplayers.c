@@ -256,12 +256,12 @@ void get_so_c_files(char **robots_user_files, int size, char ***r_so, char ***r_
     }
 }
 
-void compile_needed(char **need_compile, int size, char **r_robot, char **r_so, char **r_c)
+void compile_needed(char **need_compile, int nb_compile, int size, char **r_robot, char **r_so, char **r_c)
 {
     int i;
     FILE *sourcefile;
     int r = 0;
-    htable = init_hash(1000);
+    htable = init_hash(nb_compile * 50);
     char call[300];
     struct stat attr;
     for(i = 0; i < size; i++)

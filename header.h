@@ -183,7 +183,7 @@ void freeplayer(player *);
 char **get_rebot_names_remove_double(int *nb_robots); //return all valid .robot path and remove .so that don't have .robot associated
 char *get_robots_need_compile(char **robots_user_files, char **robots_so_files, int size); // return a boolean array that indicates all .so files that needs to be compiled
 void get_so_c_files(char **robots_user_files, int size, char ***r_so, char ***r_c); // get .c path and .so path from all .robot path
-void compile_needed(char **need_compile, int size, char **r_robot, char **r_so, char **r_c); // compile all files that are marked as compillable
+void compile_needed(char **need_compile, int nb_compile, int size, char **r_robot, char **r_so, char **r_c); // compile all files that are marked as compillable
 int load_so_functions(char **r_so, char *need_compile, int size, void ***handlers, robotfct **functions, char ***names); // load .so libraries files in memory and grab all 'proceed' functions to make them available. also fill indexes tab to all loaded robots indexes
 
 /* level.c */
