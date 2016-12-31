@@ -1,8 +1,7 @@
-%option noyywrap
+%option noyywrap yylineno
 
     char *get_or_insert(hashtable, char *);
     int getvalue(char *);
-    int lineno = 1;
     extern hashtable htable;
     
 %%
@@ -37,11 +36,10 @@
 
 (?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(htable, yytext); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
-[-+*/%=()<>,]      { return yytext[0]; }
+[-+*/%=()<>,]   { return yytext[0]; }
 
-[ \t\f]         ;
-\n              lineno += 1;
-.               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); }
+[ \t\f\n]       ;
+[^ \t\f\n]      { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
 
 %%
 #include "header.h"

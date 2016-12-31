@@ -34,7 +34,17 @@ char **get_rebot_names_remove_double(int *nb_robots)
             if(!strcmp(lastdot + 1, "so"))
             {
                 add = malloc(sizeof(cell));
+                if(!add){
+                    fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                    perror("malloc");
+                    return NULL;
+                }
                 add->val = strndup(fichierLu->d_name, strlen(fichierLu->d_name) - 9);
+                if(!add->val){
+                    fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                    perror("strndup");
+                    return NULL;
+                }     
                 add->next = sofiles_head;
                 sofiles_head = add;
             }
@@ -64,10 +74,25 @@ char **get_rebot_names_remove_double(int *nb_robots)
                         i++;
                     }
                 }
+                else{
+                    fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                    perror("strndup");
+                    return NULL;
+                }     
                 if(found)
                 {
                     add = malloc(sizeof(cell));
+                    if(!add){
+                        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                        perror("malloc");
+                        return NULL;
+                    }
                     add->val = strdup(robotname);
+                    if(!add->val){
+                        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                        perror("strdup");
+                        return NULL;          
+                    }
                     add->next = robotsfiles_head;
                     robotsfiles_head = add;
                     (*nb_robots)++;
@@ -79,6 +104,11 @@ char **get_rebot_names_remove_double(int *nb_robots)
         }
     }
     ret = malloc(sizeof(char *) * *nb_robots);
+    if(!ret){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
+        return NULL;
+    }
     llist ptr;
     llist tmp;
     llist ptr2;
@@ -116,6 +146,13 @@ char **get_rebot_names_remove_double(int *nb_robots)
         
         sprintf(buff, ROBOTSDIR "/%s.robot", ptr->val);
         ret[i] = strdup(buff);
+        if(!ret[i]){
+            fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+            perror("strdup");
+            free(tmp->val);
+            free(tmp);
+            return NULL;          
+        }
         
         ptr = ptr->next;
         free(tmp->val);
@@ -130,6 +167,11 @@ char *get_robots_need_compile(char **robots_user_files, char **robots_so_files, 
 {
     char *ret = NULL;
     ret = malloc(sizeof(char) * size);
+    if(!ret){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
+        return NULL;
+    }
     int i = 0;
     struct stat attr;
     long time_user_file;
@@ -157,17 +199,57 @@ char *get_robots_need_compile(char **robots_user_files, char **robots_so_files, 
 
 void get_so_c_files(char **robots_user_files, int size, char ***r_so, char ***r_c)
 {
+    int i,j;
     *r_so = malloc(sizeof(char*) * size);
+    if(!*r_so){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
+        return;
+    }
     *r_c = malloc(sizeof(char*) * size);
-    int i = 0;
+    if(!*r_c){
+        free(*r_so);
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
+        return;
+    }
+    i = 0;
     char *buff;
     int len_robotname = 0;
     for(i = 0; i < size; i++)
     {
         len_robotname = strlen(robots_user_files[i]) - 6;
         (*r_so)[i] = malloc(sizeof(char) * (len_robotname + 4));
+        if(!(*r_so)[i]){
+            fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+            for(j=i-1 ; j>=0 ; j--){
+                free((*r_so)[j]);
+                free((*r_c)[j]);
+            }
+            free(*r_so);
+            free(*r_c);
+            perror("malloc");
+            return;
+        }
         (*r_c)[i] = malloc(sizeof(char) * (len_robotname + 3));
+        if(!(*r_c)[i]){
+            fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+            for(j=i-1 ; j>=0 ; j--){
+                free((*r_so)[j]);
+                free((*r_c)[j]);
+            }
+            free((*r_so)[i]);
+            free(*r_so);
+            free(*r_c);
+            perror("malloc");
+            return;
+        }
         buff = strndup(robots_user_files[i], len_robotname);
+        if(!buff){
+            fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+            perror("strndup");
+            return;
+        }        
         sprintf((*r_so)[i], "%s.so", buff);
         sprintf((*r_c)[i], "%s.c", buff);
         free(buff);
@@ -228,8 +310,26 @@ void compile_needed(char **need_compile, int size, char **r_robot, char **r_so, 
 int load_so_functions(char **r_so, char *need_compile, int size, void ***handlers, robotfct **functions, char ***r_names)
 {
     *handlers = malloc(sizeof(void*) * size);
+    if(!*handlers){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        perror("malloc");
+        return 0;
+    }
     *functions = malloc(sizeof(robotfct) * size);
+    if(!*handlers){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        free(*handlers);
+        perror("malloc");
+        return 0;
+    }
     *r_names = malloc(sizeof(char *) * size);
+    if(!*r_names){
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+        free(*handlers);
+        free(*functions);
+        perror("malloc");
+        return 0;
+    }
     int ret = 0;
     int i;
     char *error;
@@ -257,6 +357,14 @@ int load_so_functions(char **r_so, char *need_compile, int size, void ***handler
                     point = strrchr(r_so[i] , '.');
                     slash = strrchr(r_so[i], '/') + 1;
                     r_names[0][ret] = strndup(r_so[i] + (slash - r_so[i]), point - r_so[i] - ((slash - r_so[i])));
+                    if(!r_names[0][ret]){
+                        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+                        free(*handlers);
+                        free(*functions);
+                        free(*r_names);
+                        perror("strndup");
+                        return 0;
+                    }                    
                     ret++;
                 }
             }

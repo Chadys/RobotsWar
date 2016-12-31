@@ -73,6 +73,11 @@ char *get_or_insert(hashtable h, char *val)
             return NULL;
         }
         ptr->val = strdup(val);
+        if(!ptr->val){
+            fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
+            perror("strdup");
+            return NULL;        
+        }
         ptr->next = NULL;
         return ptr->val;
     }
@@ -93,6 +98,11 @@ char *get_or_insert(hashtable h, char *val)
             return NULL;
         }
         add->val = strdup(val);
+        if(!add->val){
+            fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
+            perror("strdup");
+            return NULL;         
+        }
         add->next = NULL;
         ptr->next = add;
         return add->val;

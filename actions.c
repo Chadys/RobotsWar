@@ -381,6 +381,10 @@ void shoot(player * joueur, int prof,int larg, short able)
 				perplayer.tv_sec = 0;
 				nanosleep(&perplayer, NULL);
 			}
+			else{
+                fprintf(stderr, "Error in file actions.c, line %d\n", __LINE__);
+                perror("malloc");
+            }
 		
 			if(res.dir==4)
 				isshooted(res);

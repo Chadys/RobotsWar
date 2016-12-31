@@ -24,6 +24,7 @@ int set_level(int nb_players)
 	}
 
 	if(!buff){
+        fprintf(stderr, "Error in file level.c, line %d\n", __LINE__);
 		perror("strdup");
 		return 0;
 	}
@@ -69,6 +70,8 @@ int set_level(int nb_players)
 		*(level + i) = malloc(sizeof(char) * size + 1);
 		if(!*(level + i))
 		{
+            fprintf(stderr, "Error in file level.c, line %d\n", __LINE__);
+            perror("malloc");
 			free(buff);
 			int j;
 			for(j = 0; j < i; j++)
