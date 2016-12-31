@@ -79,7 +79,7 @@ int main()
         	case 'y' : 
         	{
         		recount = 1;
-        		compile_needed(&need_compile, size, robots_user_files, robots_so_files, robots_c_files);
+        		compile_needed(&need_compile, nb_need_compile, size, robots_user_files, robots_so_files, robots_c_files);
         		break;
         	}
         	case 'n':
@@ -105,7 +105,7 @@ int main()
     void **handlers = NULL;
     robotfct *robots_functions = NULL;
     char **players_names;
-    if(nb_no_need_compile > 2)
+    if(nb_no_need_compile >= 2)
     {
     	printf("Loading external libs...\n\n");
     	nb_loaded = load_so_functions(robots_so_files, need_compile, size, &handlers, &robots_functions, &players_names);
@@ -143,8 +143,12 @@ int main()
     if(startgame)
     	start();
 
-    free(handlers); // free players already close handlers
-    free(robots_functions);
+    if(nb_no_need_compile >= 2)
+    {
+    	free(handlers); // free players already close handlers
+    	free(robots_functions);
+    	free(players_names); // free players already free name strings
+    }
 
 	for(i = 0; i < size; i++)
 	{
@@ -152,7 +156,7 @@ int main()
 		free(robots_so_files[i]);
 		free(robots_c_files[i]);
 	}
-	free(players_names); // free players already free name strings
+	
 	free(robots_user_files);
 	free(robots_so_files);
 	free(robots_c_files);
