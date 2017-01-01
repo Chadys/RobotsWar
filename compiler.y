@@ -4,12 +4,14 @@
 # define YYDEBUG 1
 
 int yylex();
-void yyerror(const char *);
+void yyerror(FILE*, const char *);
 char tab[MAX_TAB] = {'\t','\0'};
 void update_tab(char);
 extern int yylineno;
 
 %}
+
+%parse-param {FILE * current_p_file}
 
 %union {
   int i;
@@ -160,7 +162,7 @@ cond : value YTEST
 
 # include "lex.yy.c"
 
-void yyerror(const char * message){
+void yyerror(FILE  __attribute__ ((unused))*current_p_file, const char * message){
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);

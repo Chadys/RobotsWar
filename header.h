@@ -154,8 +154,6 @@ extern unsigned short nlvl; //size of the level
 extern char * currentaction; //string used to display an action being done
 extern char reading; //indicate if a player's code is being read (for managment of signals)
 extern player *current_p; //current player whose code is being compiled
-extern FILE * current_p_file; //file which is the result of the current player's compiled code
-extern FILE *yyin;
 extern jmp_buf ebuf; //to make jump
 extern sigjmp_buf sigebuf; //to jump from signals
 extern hashtable htable; //hash table for the lexical analyser

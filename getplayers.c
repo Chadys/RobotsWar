@@ -1,7 +1,6 @@
 #include "header.h"
 
 player *current_p;
-FILE * current_p_file;
 extern FILE *yyin;
 
 char valid_name(const char *name){
@@ -248,7 +247,7 @@ void get_so_c_files(char **robots_user_files, int size, char ***r_so, char ***r_
 void compile_needed(char **need_compile, int nb_compile, int size, char **r_robot, char **r_so, char **r_c)
 {
     int i;
-    FILE *sourcefile;
+    FILE *sourcefile, *current_p_file;
     int r = 0;
     htable = init_hash(nb_compile * 50);
     char call[300];
@@ -258,8 +257,6 @@ void compile_needed(char **need_compile, int nb_compile, int size, char **r_robo
         if(need_compile[0][i])
         {
             printf("\n" KBLU "Compiling %s..." KNRM " \n", r_robot[i]);
-            sourcefile = NULL;
-            current_p_file = NULL;
             sourcefile = fopen(r_robot[i], "r");
             if(!sourcefile)
             {
@@ -274,7 +271,7 @@ void compile_needed(char **need_compile, int nb_compile, int size, char **r_robo
             }
             yyin = sourcefile;
             fprintf(current_p_file, "#include \"../header.h\"\n\nvoid proceed(){\nunsigned int timer = 0;\n");
-            r =  yyparse();
+            r =  yyparse(current_p_file);
             fclose(sourcefile);
             fclose(current_p_file);
             if(r)
