@@ -4,10 +4,11 @@
 # define YYDEBUG 1
 
 int yylex();
-extern int lineno;
 void yyerror(const char *);
 char tab[MAX_TAB] = {'\t','\0'};
 void update_tab(char);
+extern int yylineno;
+
 %}
 
 %union {
@@ -20,6 +21,7 @@ void update_tab(char);
 %token <c> YNOM YTEST YCOND YLOOP
 %token <i> YNUM YDIR YSPRINT YBACK
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
+%token RESERVED_KEYWORD UNRECOGNISED
 
 %left ','
 %left '+' '-'
@@ -28,7 +30,7 @@ void update_tab(char);
 
 %%
 program : instrlist
-                { fprintf(current_p_file, "}"); lineno=1; }
+                { fprintf(current_p_file, "}"); yylineno = 1; }
 
 instrlist : instr
     | instrlist instr
@@ -162,6 +164,7 @@ void yyerror(const char * message){
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);
+  yylineno = 1;
   while(tab[1] != '\0')
     update_tab(0);
   YY_FLUSH_BUFFER;
