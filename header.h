@@ -23,9 +23,6 @@
 #endif
 
 
-
-#define ALLOWED_CHARACTERS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
-
 #define TMP_FILE "tmplist.txt" //name given to a temporary file
 #define MAX_ROBOTS 50 //max number of players
 #define ROBOTSDIR "robots" //name of the directory containing players' files

@@ -4,6 +4,18 @@ player *current_p;
 FILE * current_p_file;
 extern FILE *yyin;
 
+char valid_name(const char *name){
+    size_t i, len;
+    
+    len = strlen(name);
+    if(!isalpha(name[0]) && name[0] != '_')
+        return 0;
+    for(i=1; i<len; i++)
+        if(name[i] != '_' && !isalnum(name[i]))
+            return 0;
+    return 1;
+}
+
 char **get_rebot_names_remove_double(int *nb_robots)
 {
     DIR* rep = NULL;
@@ -21,8 +33,7 @@ char **get_rebot_names_remove_double(int *nb_robots)
     char *robotname;
     struct dirent* fichierLu = NULL;
     *nb_robots = 0;
-    int len_unallowed_characters = strlen(ALLOWED_CHARACTERS);
-    int i = 0, j = 0;
+    int i = 0;
     int found = 0;
     while((fichierLu = readdir(rep)) != NULL)
     {
@@ -50,36 +61,14 @@ char **get_rebot_names_remove_double(int *nb_robots)
             }
             else if(!strcmp(lastdot + 1, "robot"))
             {
-                //if(isvalid(fichierLu->d_name))
-                found = 0;
                 i = 0;
                 robotname = strndup(fichierLu->d_name, strlen(fichierLu->d_name) - 6);
-                if(robotname)
-                {
-                    while(robotname[i])
-                    {
-                        found = 0;
-                        if(i == MAX_ROBOT_NAME)
-                            break;
-                        for(j = 0; j < len_unallowed_characters; j++)
-                        {
-                            if(ALLOWED_CHARACTERS[j] == robotname[i])
-                            {
-                                found = 1;
-                                break;
-                            }
-                        }
-                        if(!found)
-                            break;
-                        i++;
-                    }
-                }
-                else{
+                if(!robotname){
                     fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
                     perror("strndup");
                     return NULL;
                 }     
-                if(found)
+                if(valid_name(robotname))
                 {
                     add = malloc(sizeof(cell));
                     if(!add){
