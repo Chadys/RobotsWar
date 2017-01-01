@@ -1,6 +1,5 @@
 #include "header.h"
 
-hashtable htable;
 
 unsigned long int sdbm(char *str)
 {
@@ -45,6 +44,7 @@ hashtable init_hash(int n)
     if (!h.alveole){
         fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
         perror("malloc");
+        h.n=0;
         return h;
     }
     for(i = 0; i < h.n; i++)
@@ -72,19 +72,19 @@ char *get_or_insert(hashtable h, char *val)
             perror("malloc");
             return NULL;
         }
-        ptr->val = strdup(val);
+        ptr->name = strdup(val);
         ptr->next = NULL;
-        return ptr->val;
+        return ptr->name;
     }
     else
     {
-        if(!strcmp(ptr->val, val))
-            return ptr->val;
+        if(!strcmp(ptr->name, val))
+            return ptr->name;
         while(ptr->next)
         {
             ptr = ptr->next;
-            if(!strcmp(ptr->val, val))
-                return ptr->val;
+            if(!strcmp(ptr->name, val))
+                return ptr->name;
         }
         add = malloc(sizeof(cell));
         if(!add){
@@ -92,10 +92,11 @@ char *get_or_insert(hashtable h, char *val)
             perror("malloc");
             return NULL;
         }
-        add->val = strdup(val);
+        add->name = strdup(val);
         add->next = NULL;
+        add->val = 0;
         ptr->next = add;
-        return add->val;
+        return add->name;
     }
 }
 
@@ -110,7 +111,7 @@ void free_hash(hashtable h)
         {
             tmp = ptr;
             ptr = ptr->next;
-            free(tmp->val);
+            free(tmp->name);
             free(tmp);
         }
         h.alveole[i] = NULL;

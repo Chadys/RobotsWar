@@ -1,23 +1,13 @@
 #include "header.h"
-
-FILE * include_player_fct;
-FILE * get_players_fonc;
-player *current_p;
-FILE * current_p_file;
-listfunction functionlist;
-extern FILE *yyin;
+player *current_p = NULL;
 
 //return all the names of the .robot files
-char **getplayersfiles(char mode)
+char **getplayersfiles()
 {
-	int i, nplayers;
-    char **ret, *buff;
+	int nplayers;
 
-    nplayers = 0;
-    if(!mode)
-        system("(ls -1 " ROBOTSDIR " | grep '.robot$') > " TMP_FILE);
-    else
-        system("(ls -1 | grep '_robot.c$') > " TMP_FILE);
+	nplayers=0;
+	system("(ls -1 " ROBOTSDIR " | grep '.robot$') > " TMP_FILE);
 	
 	FILE *RSTREAM = fopen(TMP_FILE, "r");
 	
@@ -28,13 +18,14 @@ char **getplayersfiles(char mode)
 		return NULL;
 	}
 	
-	ret = malloc(sizeof(char *) * MAX_ROBOTS);
+	int i;
+	char **ret = malloc(sizeof(char *) * MAX_ROBOTS);
 	if (!ret){
 		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("malloc");
 		return NULL;
 	}
-	buff = malloc(sizeof(char) * MAX_FILE_NAME);
+	char *buff = malloc(sizeof(char) * MAX_FILE_NAME);
 	if (!buff){
 		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("malloc");
@@ -46,7 +37,7 @@ char **getplayersfiles(char mode)
 		if(!fgets(buff, MAX_FILE_NAME, RSTREAM))
 			break;
 		*(ret + i) = strndup(buff,strlen(buff)-1); //delete the \n at the end
-        nplayers++;
+		nplayers++;
 	}
 	if(i<MAX_ROBOTS)
 		*(ret + i)=NULL;
@@ -55,182 +46,70 @@ char **getplayersfiles(char mode)
 	free(buff);
 	fclose(RSTREAM);
 	remove(TMP_FILE);
-    
-    if(mode){
-        nlvl=set_level(nplayers);
-        if(!nlvl){
-            fprintf(stderr, "The level couldn't be created.\n");
-            return NULL;
-        }
-    }
-    htable.n = 20*nplayers; //the size of the hash table used by the syntax analyser, need to be able to contain all players's variables
+
+
+	nlvl=set_level(nplayers);
+	if(!nlvl){
+		fprintf(stderr, "The level couldn't be created.\n");
+		for(i=0;i<MAX_ROBOTS && *(ret + i);i++)
+			free(*(ret + i));
+		free(ret);
+		return NULL;
+	}
 	return ret;
 }
 
-char compile(char *);
-char compile_all(){
-    char **players;
-    int i,j;
-
-    j=0;
-    players = getplayersfiles(0);
-    if (!players)
-        return 0;
-    
-    include_player_fct = fopen("include_player_fct.h", "w");
-    if(!include_player_fct){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("fopen");
-        for(i = 0; i < MAX_ROBOTS && *(players + i); i++)
-            free(*(players+i));
-        free(players);
-        return 0;
-    }
-    get_players_fonc = fopen("get_players_fonc.c", "w");
-    if(!get_players_fonc){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("fopen");
-        fclose(include_player_fct);
-        for(i = 0; i < MAX_ROBOTS && *(players + i); i++)
-            free(*(players+i));
-        free(players);
-        return 0;
-    }
-    fprintf(get_players_fonc, "#include \"header.h\"\n#include \"include_player_fct.h\"\n\n\nvoid init_functionlist(){\n\tfunctionlist.n = 0;\n");
-    
-    for(i = 0; i < MAX_ROBOTS; i++){
-        if(!*(players + i))
-            break;
-        if(strlen(*(players + i))==6){
-            fprintf(stderr, "A file has no player name before the .robot extension\n");
-            free(*(players+i));
-            continue;
-        }
-        if(compile(*(players+i)))
-            j++;
-            
-        free(*(players+i));
-    }
-    free_hash(htable);
-    free(players);
-    fprintf(get_players_fonc, "}");
-    fclose(include_player_fct);
-    fclose(get_players_fonc);
-    if(i<2){
-        fprintf(stderr, "\nThis game needs a least two files\n");
-        return 0;
-    }
-    if(j<2){
-        fprintf(stderr, "\nNot enought valid players have been found. Please correct your codes and try compiling again.\n");
-        return 0;
-    }
-    return 1;
-}
-
-char valid_name(char*);
-char compile(char *source_filename){
-    char *name, *dest_filename, *temp;
-    int r;
-    static unsigned short num = 0;
-    FILE *sourcefile;
-    size_t length;
-    
-    length = strlen(source_filename);
-    name=strndup(source_filename,length-6); //copy the filename without .robot
-    if(!name){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("strndup");
-        return 0;
-    }
-    if(!valid_name(name)){
-        fprintf(stderr, "%s is not a valid robot's name,\nplease use only alphanumeric characters or the underscore, and start the name with a letter\n", name);
-        free(name);
-        return 0;
-    }
-    printf("\nAnalysing %s's file :\n",name);
-    dest_filename = malloc((length+3)*sizeof(char)); //add size for ".c" and NUL
-    if(!dest_filename){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("malloc");
-        free(name);
-        return 0;
-    }
-    strcpy(dest_filename, name);
-    strcpy(dest_filename+length-6, "_robot.c");
-    
-    temp=malloc((length+strlen(ROBOTSDIR)+2)*sizeof(char)); //to concatenate the path to playerfile and the player file name separated by "/", and the terminating NUL
-    if (!temp){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("malloc");
-        free(name);
-        free(dest_filename);
-        return 0;
-    }
-    strcpy(temp,ROBOTSDIR);
-    strcat(temp,"/");
-    strcat(temp,source_filename);
-    
-    sourcefile = fopen(temp, "r");
-    free(temp);
-    if(!sourcefile){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("fopen");
-        free(name);
-        free(dest_filename);
-        return 0;
-    }
-    
-    current_p_file = fopen(dest_filename, "w");
-    if(!current_p_file){
-        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
-        perror("fopen");
-        free(name);
-        free(dest_filename);
-        fclose(sourcefile);
-        return 0;
-    }
-    fprintf(current_p_file, "#include \"header.h\"\n\nvoid %s(){\nunsigned int timer = 0;\n", name);
-    yyin = sourcefile;
-    r =  yyparse();
-    fclose(current_p_file);
-    fclose(sourcefile);
-    if(r){
-        remove(dest_filename);
-        printf("Player's file not added, errors have been encountered\n");
-        free(dest_filename);
-        free(name);
-        return 0;
-    }
-    fprintf(get_players_fonc, "\tfunctionlist.p_fct[%d] = %s;\n\tfunctionlist.n++;\n", num, name);
-    fprintf(include_player_fct, "void %s();\n", name);
-    num++;
-    printf("Ok!\n");
-    free(dest_filename);
-    free(name);
-    return 1;
-}
-
-char create_player(char *, char *, unsigned short, coord);
+int create_player(FILE *, char *, char *, coord, hashtable);
 //add each valid player to the game
 char getplayers(){
 	char **players;
-	unsigned short i;
-	int j, nplayers;
+	int i,j;
+	FILE * fd;
+	char *temp;
 	char *COLORS[11]={"\e[31m","\e[94m","\e[93m","\e[32m","\e[35m","\e[36m","\e[91m","\e[92m","\e[95m","\e[96m","\e[97m"};
 	coord c;
+    hashtable keywords;
 
 	j=0;
-    nplayers = 0;
-	players = getplayersfiles(1);
-	if (!players)
+    keywords = init_hash(10);
+    if(!keywords.n){
+        fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+        perror("init_hash");
+        return 0;
+    }
+	players = getplayersfiles();
+	if (!players){
+        free_hash(keywords);
 		return 0;
-    
+    }
 	for(i = 0; i < MAX_ROBOTS; i++){
 		if(!*(players + i))
 			break;
 		c=addrandombase();
-        
-		if(create_player(*(players + i), COLORS[j], i, c)){
+		if(strlen(*(players + i))==6){
+			fprintf(stderr, "A file has no player name before the .robot extension\n");
+			free(*(players+i));
+			continue;
+		}
+		temp=malloc((strlen(*(players + i))+strlen(ROBOTSDIR)+2)*sizeof(char)); //to concatenate the path to playerfile and the player file name separated by "/", and the terminating NUL
+		if (!temp){
+			fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
+			perror("malloc");
+			free(*(players+i));
+			continue;
+		}
+		strcpy(temp,ROBOTSDIR);
+		strcat(temp,"/");
+		strcat(temp,*(players + i));
+		fd = fopen(temp, "r+");
+		free(temp);
+		if(!fd){
+			fprintf(stderr, "Error in file getplayers.c, line %d, while opening file %s\n", __LINE__,*(players + i));
+			perror("fopen");
+			free(*(players+i));
+			continue;
+		}
+		if(create_player(fd, *(players + i),COLORS[j],c, keywords)){
 			j++;
 			if(j==11)
 				j=0;
@@ -249,46 +128,92 @@ char getplayers(){
 			}
 			addrandombutin();
 		}
+		fclose(fd);
 		free(*(players+i));
-        nplayers++;
 	}
 	free(players);
+    free_hash(keywords);
 	if(i<2){
 		fprintf(stderr, "\nThis game needs a least two files\n");
 		return 0;
 	}
 	if(!playerslist || !playerslist->next){
-		fprintf(stderr, "\nNot enought valid players have been found. Too many error were encountered.\n");
+		fprintf(stderr, "\nNot enought valid players have been found. Please correct your codes and try again.\n");
 		return 0;
 	}
 	for(;i < nlvl; i++){
-		addrandombase();
+		c=addrandombase();
 	}
 	return 1;
 }
 
 
  // create a player if the code in the file is valid and add it to the global list
-char create_player(char * nomjoueur, char * color, unsigned short num, coord c){
+int create_player(FILE * fd, char * nomjoueur, char * color, coord c, hashtable keywords){
+	char *ligne,*buffer, *test;
 	player *joueur;
 	listplay add;
+	unsigned int cap, r;
+	size_t sizecode,sizebuf;
 
-    printf("\nLoading %s's file :\n",nomjoueur);
+	sizecode=0;
+	cap=MAX_LETTERS_READ;
+	printf("\nAnalysing file %s :\n",nomjoueur);
+	ligne=calloc(cap+1,sizeof(char));
+	if (!ligne){
+		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		perror("calloc");
+		return 0;
+	}
+	buffer=calloc(cap+1,sizeof(char));
+	if (!buffer){
+		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		perror("calloc");
+		free(ligne);
+		return 0;
+	}
+	while(fgets(buffer, MAX_LETTERS_READ, fd)){
+		sizebuf=strlen(buffer);
+		if(sizecode+2>UINT_MAX-sizebuf){
+			fprintf(stderr,"Error: code is too long\n");
+			free(ligne);
+			free(buffer);
+			return 0;
+		}
+		if(sizebuf+sizecode+2>cap){
+			cap*=2;
+			test=realloc(ligne,cap*sizeof(char)+1);
+			ligne=test;
+			if (!test){
+				fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+				perror("realloc");
+				free(ligne);
+				free(buffer);
+				return 0;
+			}
+			memset(ligne+cap/2,'\0',cap/2);
+		}
+		strcat(ligne,buffer);
+		sizecode+=sizebuf;
+	}
+	free(buffer);
+
 	joueur=malloc(sizeof(player));
 	if(!joueur){
 		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
 		perror("malloc");
-        printf("Failed.\n");
+		free(ligne);
 		return 0;
 	}
-
+	joueur->code=ligne;
 	joueur->color=color;
-	joueur->name=strndup(nomjoueur,strlen(nomjoueur)-8); //copy the filename without _robot.c
+	joueur->name=strndup(nomjoueur,strlen(nomjoueur)-6); //copie the filename without .robot
 	if (!joueur->name){
 		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
 		perror("strndup");
 		free(joueur);
-        printf("Failed.\n");
+		free(ligne);
+		free(joueur->code);
 		return 0;
 	}
 	joueur->treasure=0;
@@ -296,40 +221,47 @@ char create_player(char * nomjoueur, char * color, unsigned short num, coord c){
 	joueur->life=MAX_LIFE;
 	joueur->energy=MAX_ENERGY;
 	joueur->onbase=1;
-	joueur->loc=c;
-    joueur->number = num;
-    add=malloc(sizeof(cellplay));
-    if (!add){
+	joueur->variables=init_hash(20);
+    if(!joueur->variables.n){
         fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
-        perror("malloc");
-        freeplayer(joueur);
-        printf("Failed.\n");
+        perror("init_hash");
+        free(joueur);
+        free(ligne);
+        free(joueur->code);
+        free(joueur->name);
         return 0;
     }
-    add->play=joueur;
-    add->next=playerslist;
-    playerslist=add;
-    num++;
-    printf("Ok !\n");
-    return 1;
+	joueur->loc=c;
+    init_parser(joueur->code, sizecode+2);
+    r=yyparse(joueur, keywords);
+    if(actionslist){
+        free(actionslist);
+        actionslist = NULL;
+    }
+	if(!r){
+		add=malloc(sizeof(cellplay));
+		if (!add){
+			fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+			perror("malloc");
+			freeplayer(joueur);
+			return 0;
+		}
+		add->play=joueur;
+		add->next=playerslist;
+		playerslist=add;
+		printf("Ok!\n");
+		return 1;
+	}
+	printf("Player not added, errors have been encountered\n");
+    freeplayer(joueur);
+	return 0;
 }
 
 //free all memory used by a player
 void freeplayer(player *joueur){
-
-	free(joueur->name);
-	free(joueur);
-}
-
-
-char valid_name(char *name){
-    size_t i, len;
     
-    len = strlen(name);
-    if(!isalpha(name[0]))
-        return 0;
-    for(i=1; i<len; i++)
-        if(name[i] != '_' && !isalnum(name[i]))
-            return 0;
-    return 1;
+	free(joueur->name);
+	free(joueur->code);
+    free_hash(joueur->variables);
+	free(joueur);
 }

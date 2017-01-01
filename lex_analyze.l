@@ -1,15 +1,16 @@
+%{
+#include "header.h"
+%}
 %option noyywrap yylineno
 
-    char *get_or_insert(hashtable, char *);
     int getvalue(char *);
-    extern hashtable htable;
+    char *get_or_insert(hashtable, char *);
+    #define YY_DECL int yylex(player *joueur, hashtable keywords)
     
 %%
 
-"auto"|"case"|"char"|"const"|"default"|"do"|"double"|"enum"|"extern"|"float"|"for"|"goto"|"int"|"long"|"register"|"return"|"short"|"signed"|"sizeof"|"static"|"struct"|"switch"|"typedef"|"union"|"unsigned"|"void"|"volatile"  { return RESERVED_KEYWORD; }
-
-"<="|">="|"!="|"==" { yylval.c = get_or_insert(htable, yytext); return YTEST; }
-"&&"|"||"       { yylval.c = get_or_insert(htable, yytext); return YCOND; }
+"<="|">="|"!="|"==" { yylval.c = get_or_insert(keywords, yytext); return YTEST; }
+"&&"|"||"       { yylval.c = get_or_insert(keywords, yytext); return YCOND; }
 
 "var"           { return YVAR; }
 "Look"          { return YLOOK; }
@@ -32,9 +33,9 @@
 "endwhile"      { return YENDWHILE; }
 "else"          { return YELSE; }
 "endelse"       { return YENDELSE; }
-"break"|"continue"  { yylval.c = get_or_insert(htable, yytext); return YLOOP; }
+"break"|"continue"  { yylval.c = get_or_insert(keywords, yytext); return YLOOP; }
 
-(?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(htable, yytext); return YNOM; }
+(?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
 [-+*/%=()<>,]   { return yytext[0]; }
 
@@ -42,9 +43,8 @@
 [^ \t\f\n]      { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
 
 %%
-#include "header.h"
 
-/* ggetvalue -- renvoie la valeur correspondante à un mot-clef */
+/* getvalue -- renvoie la valeur correspondante à un mot-clef */
 int getvalue(char *keyword){
 
     if(!strcmp(keyword, "VISIONMAX"))

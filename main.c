@@ -1,7 +1,6 @@
 #include "header.h"
 
 listplay playerslist=NULL;
-listaction actionslist=NULL;
 jmp_buf ebuf;
 
 int main(){
@@ -20,24 +19,7 @@ int main(){
 		perror("signal");
 	if (sigaction(SIGFPE, &actFPE, NULL))
 		perror("signal");
-
-    
-    printf("Would you like to compile players' file (type 'c') or launch the game if you already compiled them (type 'r') ?\nFinally to quit type 'q' : ");
-    for(i=fgetc(stdin);i!='c' && i!='r' && i!='q';i=fgetc(stdin))
-        if(i!=EOF && i!=' ' && i!='\n')
-            printf("Invalid entry, please try again.\n");;
-    if(i=='c'){
-        if(compile_all()){
-            printf("\nSuccessful compilation, you can now restart the game to play with your robots !\n\n\nReloading executable :\n\n");
-            system("make");
-            exit(EXIT_SUCCESS);
-        }
-        printf("Compilation has failed\n");
-        exit(EXIT_FAILURE);
-    }
-    if(i=='q')
-        exit(EXIT_SUCCESS);
-    
+  
     
 	i = setjmp(ebuf);
 	if(i)

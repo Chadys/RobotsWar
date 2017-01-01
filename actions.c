@@ -1,7 +1,7 @@
 #include "header.h"
 
 char * currentaction="";
-listaction _actionslist = NULL;
+listaction actionslist = NULL;
 
 //add an action to the global actionslist for this turn
 void add_action(listaction A)

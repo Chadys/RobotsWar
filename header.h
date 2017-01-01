@@ -36,6 +36,22 @@ struct coord{
 typedef struct coord coord;
 //Direction -> north=1, east=2, south=3, west=4
 
+/* Hash table and hash cell */
+typedef struct cell
+{
+    char *name;
+    int val;
+    struct cell *next;
+}cell;
+typedef cell* llist;
+
+typedef struct hashtable
+{
+    int n;
+    int p;
+    llist *alveole;
+}hashtable;
+
 /* players */
 struct player{
 	char *color; //sûrement un code en hexa, il faudra voir les couleurs prédéfinies de sdl sinon
@@ -46,7 +62,8 @@ struct player{
 	unsigned short energy;
 	coord loc;
 	char onbase;
-    unsigned short number;
+    char *code;
+    hashtable variables;
 };
 typedef struct player player;
 
@@ -83,38 +100,6 @@ typedef struct butin butin;
 typedef struct butin * listbutin;
 
 
-/* int list */
-struct cellint
-{
-	int data;
-	struct cellint *next;
-};
-typedef struct cellint cellint;
-typedef struct cellint * listint;
-
-
-/* functions list */
-typedef void (*p_fct)();
-typedef struct listfunction{
-    p_fct p_fct[MAX_ROBOTS];
-    unsigned short n;
-} listfunction;
-
-/* Hash table and hash cell */
-typedef struct cell
-{
-    char *val;
-    struct cell *next;
-}cell;
-typedef cell* llist;
-
-typedef struct hashtable
-{
-    int n;
-    int p;
-    llist *alveole;
-}hashtable;
-
 /* player's actions enum */
 typedef enum ACTION{
         SNOOZE,
@@ -122,6 +107,7 @@ typedef enum ACTION{
         GO,
         SHOOT
 } ACTION;
+
 
 /* globals */
 extern listplay playerslist; //list of players
@@ -131,15 +117,10 @@ extern listbutin butinslist; //all treasure on the map
 extern char **level; //the level and all it contains
 extern unsigned short nlvl; //size of the level
 extern char * currentaction; //string used to display an action being done
-extern char reading; //indicate if a player's code is being read (for managment of signals)
-extern player *current_p; //current player whose code is being compiled
-extern FILE * current_p_file; //file which is the result of the current player's compiled code
-extern FILE * include_player_fct; //file in which we include players' compiled file
-extern FILE * get_players_fonc; //file in which we write the code to get players' function
-extern listfunction functionlist; //list of players function
+extern char reading; //indicate if a player's code is being read (for management of signals)
 extern jmp_buf ebuf; //to make jump
 extern sigjmp_buf sigebuf; //to jump from signals
-extern hashtable htable; //hash table for the lexical analyser
+extern player *current_p; //current player
 
 
 /* prototypes */
@@ -189,6 +170,7 @@ char update_energy(unsigned int *);
 /* compiler.tab.c */
 // compiler's parsing
 int yyparse();
+void init_parser(char*,size_t);
 
 /* get_players_fonc.c */
 // inititalisation of function list, only do something if the compiler has been launched
