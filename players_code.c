@@ -12,8 +12,10 @@ void activate(player *joueur){
     i = sigsetjmp(sigebuf, 1);
     if(i)
         fprintf(stderr, "Arithmetic error encountered while reading code of player %s\n", joueur->name);
-    else
-//        functionlist.p_fct[joueur->number]();
+    else{
+        yy_init_parser(joueur->code, joueur->sizecode);
+        yyparse(joueur, keywords);
+    }
     reading=0;
     joueur->energy+=2;
     if(joueur->energy>MAX_ENERGY || joueur->onbase)

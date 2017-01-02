@@ -8,6 +8,7 @@ static char tab[MAX_TAB] = {'\t','\0'};
 static void update_tab(char);
 extern int yylineno;
 int yylex(player*,hashtable);
+void yyfinish();
 
 %}
 
@@ -31,6 +32,7 @@ int yylex(player*,hashtable);
 %left '*' '/' '%'
 %precedence UNARY
 
+%type <i> value
 
 %%
 program : instrlist
@@ -127,21 +129,17 @@ ifinwhileexpr : YIF
                 { update_tab(0); fprintf(stdout, "%s}\n", tab); }
 
 action : YSNOOZE
-                { fprintf(stdout, "%sreturn create_action(SNOOZE, 0, 0);\n", tab); }
+                { create_action(SNOOZE, 0, 0, joueur); yyfinish(); YYACCEPT; }
     | YTURN YDIR
-                { fprintf(stdout, "%sreturn create_action(TURNAROUND, %d, 0);\n", tab, $2); }
+                { create_action(TURNAROUND, $2, 0, joueur); yyfinish(); YYACCEPT; }
     | YTURN YBACK
-                { fprintf(stdout, "%sreturn create_action(TURNAROUND, %d, 0);\n", tab, $2); }
+                { create_action(TURNAROUND, $2, 0, joueur); yyfinish(); YYACCEPT; }
     | YGO YDIR
-                { fprintf(stdout, "%sreturn create_action(GO, %d, 0);\n", tab, $2); }
+                { create_action(GO, $2, 0, joueur); yyfinish(); YYACCEPT; }
     | YGO YSPRINT
-                { fprintf(stdout, "%sreturn create_action(GO, %d, 0);\n", tab, $2); }
-    | YSHOOT
-                { fprintf(stdout, "%sreturn create_action(SHOOT, ", tab); }
-      value ','
-                { fprintf(stdout, ", "); }
-      value
-                { fprintf(stdout, ");\n"); }
+                { create_action(GO, $2, 0, joueur); yyfinish(); YYACCEPT; }
+    | YSHOOT value ',' value
+                { create_action(SHOOT, $2, $4, joueur); yyfinish(); YYACCEPT; }
 
 condlist : conds
                 { fprintf(stdout, "){\nYCHECKTIMER(1);\n"); }
@@ -166,6 +164,13 @@ void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((u
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);
+  yylineno = 1;
+  while(tab[1] != '\0')
+    update_tab(0);
+  yy_flush();
+}
+
+void yyfinish(){
   yylineno = 1;
   while(tab[1] != '\0')
     update_tab(0);

@@ -1,5 +1,6 @@
 #include "header.h"
 player *current_p = NULL;
+hashtable keywords;
 
 //return all the names of the .robot files
 char **getplayersfiles()
@@ -59,7 +60,7 @@ char **getplayersfiles()
 	return ret;
 }
 
-int create_player(FILE *, char *, char *, coord, hashtable);
+int create_player(FILE *, char *, char *, coord);
 //add each valid player to the game
 char getplayers(){
 	char **players;
@@ -68,7 +69,6 @@ char getplayers(){
 	char *temp;
 	char *COLORS[11]={"\e[31m","\e[94m","\e[93m","\e[32m","\e[35m","\e[36m","\e[91m","\e[92m","\e[95m","\e[96m","\e[97m"};
 	coord c;
-    hashtable keywords;
 
 	j=0;
     keywords = init_hash(10);
@@ -109,7 +109,7 @@ char getplayers(){
 			free(*(players+i));
 			continue;
 		}
-		if(create_player(fd, *(players + i),COLORS[j],c, keywords)){
+		if(create_player(fd, *(players + i),COLORS[j],c)){
 			j++;
 			if(j==11)
 				j=0;
@@ -132,7 +132,6 @@ char getplayers(){
 		free(*(players+i));
 	}
 	free(players);
-    free_hash(keywords);
 	if(i<2){
 		fprintf(stderr, "\nThis game needs a least two files\n");
 		return 0;
@@ -149,11 +148,11 @@ char getplayers(){
 
 
  // create a player if the code in the file is valid and add it to the global list
-int create_player(FILE * fd, char * nomjoueur, char * color, coord c, hashtable keywords){
+int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 	char *ligne,*buffer, *test;
 	player *joueur;
 	listplay add;
-	unsigned int cap, r;
+	unsigned int cap;
 	size_t sizecode,sizebuf;
 
 	sizecode=0;
@@ -206,6 +205,7 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c, hashtable 
 		return 0;
 	}
 	joueur->code=ligne;
+    joueur->sizecode = sizecode+2;
 	joueur->color=color;
 	joueur->name=strndup(nomjoueur,strlen(nomjoueur)-6); //copie the filename without .robot
 	if (!joueur->name){
@@ -232,13 +232,8 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c, hashtable 
         return 0;
     }
 	joueur->loc=c;
-    yy_init_parser(joueur->code, sizecode+2);
-    r=checkparse(joueur, keywords);
-    if(actionslist){
-        free(actionslist);
-        actionslist = NULL;
-    }
-	if(!r){
+    yy_init_parser(joueur->code, joueur->sizecode);
+	if(!checkparse(joueur, keywords)){
 		add=malloc(sizeof(cellplay));
 		if (!add){
 			fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);

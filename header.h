@@ -63,6 +63,7 @@ struct player{
 	coord loc;
 	char onbase;
     char *code;
+    size_t sizecode;
     hashtable variables;
 };
 typedef struct player player;
@@ -120,6 +121,7 @@ extern char * currentaction; //string used to display an action being done
 extern char reading; //indicate if a player's code is being read (for management of signals)
 extern jmp_buf ebuf; //to make jump
 extern sigjmp_buf sigebuf; //to jump from signals
+extern hashtable keywords; //to stock our parser's keywords
 
 
 /* prototypes */

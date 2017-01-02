@@ -34,6 +34,7 @@ void cleangame(){
 		free(level);
 	if(currentaction && *currentaction)
 		free(currentaction);
+    free_hash(keywords);
 }
 
 //enable the program to clean itself before a quit with ^⁻C
