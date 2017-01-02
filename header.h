@@ -188,5 +188,6 @@ void init_functionlist();
 /* hash_table.c */
 hashtable init_hash(int);
 void free_hash(hashtable);
+llist get_or_insert(hashtable, char *);
 
 #endif

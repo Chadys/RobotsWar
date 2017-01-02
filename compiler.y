@@ -17,78 +17,65 @@ void yyfinish();
 
 %union {
   int i;
-  char * c;
+  llist c;
+  char *s;
 };
 
 %error-verbose
 
-%token <c> YNOM YTEST YCOND YLOOP
+%token <c> YNOM
+%token <s> YTEST YCOND YLOOP
 %token <i> YNUM YDIR YSPRINT YBACK
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
 %token UNRECOGNISED
 
-%left ','
+%precedence ','
 %left '+' '-'
 %left '*' '/' '%'
 %precedence UNARY
 
-%type <i> value
+%type <i> value condlist conds cond
 
 %%
 program : instrlist
-                { fprintf(stdout, "}"); yylineno = 1; }
+                { yylineno = 1; }
 
 instrlist : instr
     | instrlist instr
     
 instr : YVAR YNOM
-                { fprintf(stdout, "%sint %s;\nYCHECKTIMER(1);\n", tab, $2); }
-    | YNOM '='
-                { fprintf(stdout, "%s%s = ", tab, $1); }
-       value
-                { fprintf(stdout, ";\nYCHECKTIMER(3);\n"); }
+    | YNOM '=' value
+                { $1->val = $3; }
     | whilexpr
     | ifexpr
     | action
     
 value : YNUM
-                { fprintf(stdout, "%d", $1); }
+                { $$ = $1; }
     | YNOM
-                { fprintf(stdout, "%s", $1); }
-    | '('
-                { fprintf(stdout, "( "); }
-        value ')'
-                { fprintf(stdout, " )"); }
-    | YLOOK
-                { fprintf(stdout, "ligne(current_p->loc, "); }
-      value ','
-                { fprintf(stdout, ", "); }
-      value
-                { fprintf(stdout, ").dir"); }
-    | '-' %prec UNARY
-                { fprintf(stdout, " -"); }
-      value
-    | value '+'
-                { fprintf(stdout, " + "); }
-      value
-    | value '-'
-                { fprintf(stdout, " - "); }
-      value
-    | value '*'
-                { fprintf(stdout, " * "); }
-      value
-    | value '%'
-                { fprintf(stdout, " %% "); }
-      value
-    | value '/'
-                { fprintf(stdout, " / "); }
-      value
+                { $$ = $1->val; }
+    | '(' value ')'
+                { $$ = $2; }
+    | YLOOK value ',' value
+                { $$ = ligne(joueur->loc, $2, $4).dir; }
+    | '-' value %prec UNARY
+                { $$ = -$2; }
+    | value '+'value
+                { $$ = $1+$3; }
+    | value '-' value
+                { $$ = $1-$3; }
+    | value '*' value
+                { $$ = $1*$3; }
+    | value '%' value
+                { $$ = $1%$3; }
+    | value '/' value
+                { $$ = $1/$3; }
     | YLIFE
-                { fprintf(stdout, "current_p->life"); }
+                { $$ = joueur->life; }
     | YSCORE
-                { fprintf(stdout, "current_p->treasure"); }
+                { $$ = joueur->treasure; }
     | YNRJ
-                { fprintf(stdout, "current_p->energy"); }
+                { $$ = joueur->energy; }
                 
 whilexpr : YWHILE
                 { fprintf(stdout, "%swhile (", tab); update_tab(1); }
@@ -102,11 +89,8 @@ whileinstr : YLOOP
                 { fprintf(stdout, "%s%s;\n", tab, $1); }
     | ifinwhileexpr
     | YVAR YNOM
-                { fprintf(stdout, "%sint %s;\nYCHECKTIMER(1);\n", tab, $2); }
-    | YNOM '='
-                { fprintf(stdout, "%s%s = ", tab, $1); }
-       value
-                { fprintf(stdout, ";\nYCHECKTIMER(1);\n"); }
+    | YNOM '=' value
+                { $1->val = $3; }
     | whilexpr
     | action
     
@@ -142,22 +126,37 @@ action : YSNOOZE
                 { create_action(SHOOT, $2, $4, joueur); yyfinish(); YYACCEPT; }
 
 condlist : conds
-                { fprintf(stdout, "){\nYCHECKTIMER(1);\n"); }
+                { $$ = $1; }
                 
 conds : cond
-    | conds YCOND
-                { fprintf(stdout, " %s ", $2); }
-        cond
+                { $$ = $1; }
+    | conds YCOND cond
+                { switch($2[0]){
+                    case('&'):
+                        $$ = $1 && $3;
+                        break;
+                    default:
+                        $$ = $1 || $3;
+                }}
                 
-cond : value YTEST
-                { fprintf(stdout, " %s ", $2); }
-        value
-    | value '<'
-                { fprintf(stdout, " < "); }
-        value
-    | value '>'
-                { fprintf(stdout, " > "); }
-        value
+cond : value YTEST value
+                { switch($2[0]){
+                    case('<'):
+                        $$ = $1 <= $3;
+                        break;
+                    case('>'):
+                        $$ = $1 >= $3;
+                        break;
+                    case('!'):
+                        $$ = $1 != $3;
+                        break;
+                    default:
+                        $$ = $1 == $3;
+                }}
+    | value '<' value
+                { $$ = $1 < $3; }
+    | value '>' value
+                { $$ = $1 > $3; }
 %%
 
 void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((unused))keywords, const char * message){

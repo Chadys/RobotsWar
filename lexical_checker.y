@@ -25,12 +25,12 @@ int yylex(player*,hashtable);
 
 %error-verbose
 
-%token <c> YNOM YTEST YCOND YLOOP
-%token <i> YNUM YDIR YSPRINT YBACK
+%token YNOM YTEST YCOND YLOOP
+%token YNUM YDIR YSPRINT YBACK
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
 %token UNRECOGNISED
 
-%left ','
+%precedence ','
 %left '+' '-'
 %left '*' '/' '%'
 %precedence UNARY

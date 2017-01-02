@@ -5,13 +5,12 @@
 %option noyywrap yylineno
 
     int getvalue(char *);
-    char *get_or_insert(hashtable, char *);
     #define YY_DECL int yylex(player *joueur, hashtable keywords)
     
 %%
 
-"<="|">="|"!="|"==" { yylval.c = get_or_insert(keywords, yytext); return YTEST; }
-"&&"|"||"       { yylval.c = get_or_insert(keywords, yytext); return YCOND; }
+"<="|">="|"!="|"==" { yylval.s = get_or_insert(keywords, yytext)->name; return YTEST; }
+"&&"|"||"       { yylval.s = get_or_insert(keywords, yytext)->name; return YCOND; }
 
 "var"           { return YVAR; }
 "Look"          { return YLOOK; }
@@ -34,7 +33,7 @@
 "endwhile"      { return YENDWHILE; }
 "else"          { return YELSE; }
 "endelse"       { return YENDELSE; }
-"break"|"continue"  { yylval.c = get_or_insert(keywords, yytext); return YLOOP; }
+"break"|"continue"  { yylval.s = get_or_insert(keywords, yytext)->name; return YLOOP; }
 
 (?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }

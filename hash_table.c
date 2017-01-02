@@ -56,7 +56,7 @@ hashtable init_hash(int n)
     return h;
 }
 
-char *get_or_insert(hashtable h, char *val)
+llist get_or_insert(hashtable h, char *val)
 {
     int a;
     llist ptr, add;
@@ -74,17 +74,17 @@ char *get_or_insert(hashtable h, char *val)
         }
         ptr->name = strdup(val);
         ptr->next = NULL;
-        return ptr->name;
+        return ptr;
     }
     else
     {
         if(!strcmp(ptr->name, val))
-            return ptr->name;
+            return ptr;
         while(ptr->next)
         {
             ptr = ptr->next;
             if(!strcmp(ptr->name, val))
-                return ptr->name;
+                return ptr;
         }
         add = malloc(sizeof(cell));
         if(!add){
@@ -96,7 +96,7 @@ char *get_or_insert(hashtable h, char *val)
         add->next = NULL;
         add->val = 0;
         ptr->next = add;
-        return add->name;
+        return add;
     }
 }
 
