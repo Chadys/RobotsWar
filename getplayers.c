@@ -232,8 +232,8 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c, hashtable 
         return 0;
     }
 	joueur->loc=c;
-    init_parser(joueur->code, sizecode+2);
-    r=yyparse(joueur, keywords);
+    yy_init_parser(joueur->code, sizecode+2);
+    r=checkparse(joueur, keywords);
     if(actionslist){
         free(actionslist);
         actionslist = NULL;

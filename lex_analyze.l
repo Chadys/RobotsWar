@@ -1,5 +1,6 @@
 %{
 #include "header.h"
+#include "compiler.tab.h"
 %}
 %option noyywrap yylineno
 
@@ -64,4 +65,13 @@ int getvalue(char *keyword){
     else if(!strcmp(keyword, "ROBOT") || !strcmp(keyword, "LEFT"))
         return 4;
     return INT_MIN;
+}
+
+void yy_init_parser(char *code, size_t size){
+    yy_delete_buffer( YY_CURRENT_BUFFER );
+    yy_scan_buffer(code, size);
+}
+
+void yy_flush(){
+    YY_FLUSH_BUFFER;
 }

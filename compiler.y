@@ -4,8 +4,8 @@
 # define YYDEBUG 1
 
 void yyerror(player*,hashtable, const char *);
-char tab[MAX_TAB] = {'\t','\0'};
-void update_tab(char);
+static char tab[MAX_TAB] = {'\t','\0'};
+static void update_tab(char);
 extern int yylineno;
 int yylex(player*,hashtable);
 
@@ -30,6 +30,7 @@ int yylex(player*,hashtable);
 %left '+' '-'
 %left '*' '/' '%'
 %precedence UNARY
+
 
 %%
 program : instrlist
@@ -161,8 +162,6 @@ cond : value YTEST
         value
 %%
 
-# include "lex.yy.c"
-
 void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((unused))keywords, const char * message){
   extern char * yytext;
 
@@ -170,7 +169,7 @@ void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((u
   yylineno = 1;
   while(tab[1] != '\0')
     update_tab(0);
-  YY_FLUSH_BUFFER;
+  yy_flush();
 }
 
 void update_tab(char add){
@@ -188,9 +187,4 @@ void update_tab(char add){
             return;
         }
     }
-}
-
-void init_parser(char *code, size_t size){
-    yy_delete_buffer( YY_CURRENT_BUFFER );
-    yy_scan_buffer(code, size);
 }

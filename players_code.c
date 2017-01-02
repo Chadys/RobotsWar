@@ -9,7 +9,6 @@ void activate(player *joueur){
     int i;
     
     reading=1;
-    current_p = joueur;
     i = sigsetjmp(sigebuf, 1);
     if(i)
         fprintf(stderr, "Arithmetic error encountered while reading code of player %s\n", joueur->name);
@@ -22,24 +21,24 @@ void activate(player *joueur){
 }
 
 // add to the actionslist the action called by the robot
-void create_action(char choice, int arg1, int arg2){
+void create_action(char choice, int arg1, int arg2, player *joueur){
     short priority;
     listaction act;
     
     switch(choice){
         case SNOOZE:
-            current_p->energy++;
+            joueur->energy++;
             return;
         case TURNAROUND:
-            priority=current_p->energy-1;
+            priority=joueur->energy-1;
             act=malloc(sizeof(action));
             if(!act){
                 fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
                 perror("malloc");
                 return;
             }
-            act->p=current_p;
-            act->priority=current_p->energy-1;
+            act->p=joueur;
+            act->priority=joueur->energy-1;
             act->arg_0=arg1;
             act->arg_1=0;
             act->fct=turnaround;
@@ -47,15 +46,15 @@ void create_action(char choice, int arg1, int arg2){
             add_action(act);
             return;
         case SHOOT:
-            priority=current_p->energy-3;
+            priority=joueur->energy-3;
             act=malloc(sizeof(action));
             if(!act){
                 fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
                 perror("malloc");
                 return;
             }
-            act->p=current_p;
-            act->priority=current_p->energy-3;
+            act->p=joueur;
+            act->priority=joueur->energy-3;
             act->arg_0=arg1;
             act->arg_1=arg2;
             act->fct=shoot;
@@ -63,7 +62,7 @@ void create_action(char choice, int arg1, int arg2){
             add_action(act);
             return;
         case GO:
-            priority=current_p->energy-3;
+            priority=joueur->energy-3;
             if(arg1 == 1) //FORWARD
                 priority++;
             act=malloc(sizeof(action));
@@ -72,7 +71,7 @@ void create_action(char choice, int arg1, int arg2){
                 perror("malloc");
                 return;
             }
-            act->p=current_p;
+            act->p=joueur;
             act->priority=priority;
             act->arg_0=arg1;
             act->arg_1=0;
@@ -82,12 +81,12 @@ void create_action(char choice, int arg1, int arg2){
     }
 }
 
-char update_energy(unsigned int *action_read){
+char update_energy(unsigned int *action_read, player *joueur){
     if (*action_read >= MAX_TIMER){
-        current_p->energy--;
+        joueur->energy--;
         *action_read=0;
-        if (!current_p->energy){
-            fprintf(stderr, "An infinite loop was found or too much time was taken while parsing code of player %s\n", current_p->name);
+        if (!joueur->energy){
+            fprintf(stderr, "An infinite loop was found or too much time was taken while parsing code of player %s\n", joueur->name);
             return 0;
         }
     }

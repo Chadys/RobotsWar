@@ -120,7 +120,6 @@ extern char * currentaction; //string used to display an action being done
 extern char reading; //indicate if a player's code is being read (for management of signals)
 extern jmp_buf ebuf; //to make jump
 extern sigjmp_buf sigebuf; //to jump from signals
-extern player *current_p; //current player
 
 
 /* prototypes */
@@ -164,13 +163,21 @@ void div0(int);
 /* players_code.c */
 //interact with the player's compiled code
 void activate(player *);
-void create_action(char, int, int);
-char update_energy(unsigned int *);
+void create_action(char, int, int, player*);
+char update_energy(unsigned int *, player*);
+
+/* lex.yy.c */
+//lexical analyser
+void yy_init_parser(char*,size_t);
+void yy_flush();
 
 /* compiler.tab.c */
 // compiler's parsing
 int yyparse();
-void init_parser(char*,size_t);
+
+/* compiler.tab.c */
+// compiler's parsing but only to check codes' correctness
+int checkparse();
 
 /* get_players_fonc.c */
 // inititalisation of function list, only do something if the compiler has been launched
