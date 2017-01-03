@@ -234,7 +234,7 @@ void displayplayer(player * joueur){
 		i=joueur->energy;
 		etc=malloc(sizeof(char)*i+1);
 		if(!etc){
-			fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+			fprintf(stderr, "Error in file level.c, line %d\n", __LINE__);
 			perror("malloc");
 			etc="?";
 		}

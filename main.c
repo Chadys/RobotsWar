@@ -4,10 +4,6 @@ listplay playerslist=NULL;
 listaction actionslist=NULL;
 jmp_buf ebuf;
 
-
-
-player *current_p;
-
 int main()
 {
 	listplay temp;

@@ -249,7 +249,12 @@ void compile_needed(char **need_compile, int nb_compile, int size, char **r_robo
     int i;
     FILE *sourcefile, *current_p_file;
     int r = 0;
-    htable = init_hash(nb_compile * 50);
+    hashtable htable = init_hash(nb_compile * 50);
+    if(!htable.n){
+        fprintf(stderr, "Error in file getplayer.c, line %d\n", __LINE__);
+        perror("init_hash");
+        return;
+    }
     char call[300];
     struct stat attr;
     for(i = 0; i < size; i++)
@@ -271,7 +276,7 @@ void compile_needed(char **need_compile, int nb_compile, int size, char **r_robo
             }
             yyin = sourcefile;
             fprintf(current_p_file, "#include \"../header.h\"\n\nvoid proceed(){\nunsigned int timer = 0;\n");
-            r =  yyparse(current_p_file);
+            r =  yyparse(current_p_file, htable);
             fclose(sourcefile);
             fclose(current_p_file);
             if(r)
@@ -413,7 +418,7 @@ char create_player(char * nomjoueur, char * color, unsigned short num, coord c, 
 
 	joueur=malloc(sizeof(player));
 	if(!joueur){
-		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("malloc");
         printf("Failed.\n");
 		return 0;
@@ -432,7 +437,7 @@ char create_player(char * nomjoueur, char * color, unsigned short num, coord c, 
     joueur->fct = function;
     add=malloc(sizeof(cellplay));
     if (!add){
-        fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
         perror("malloc");
         freeplayer(joueur);
         printf("Failed.\n");

@@ -156,13 +156,9 @@ extern char reading; //indicate if a player's code is being read (for managment 
 extern player *current_p; //current player whose code is being compiled
 extern jmp_buf ebuf; //to make jump
 extern sigjmp_buf sigebuf; //to jump from signals
-extern hashtable htable; //hash table for the lexical analyser
 
 
 /* prototypes */
-
-
-
 
 
 /* gamemotor.c */
@@ -215,10 +211,6 @@ char update_energy(unsigned int *);
 /* compiler.tab.c */
 // compiler's parsing
 int yyparse();
-
-/* get_players_fonc.c */
-// inititalisation of function list, only do something if the compiler has been launched
-void init_functionlist();
 
 /* hash_table.c */
 hashtable init_hash(int);

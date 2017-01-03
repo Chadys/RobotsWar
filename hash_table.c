@@ -45,6 +45,7 @@ hashtable init_hash(int n)
     if (!h.alveole){
         fprintf(stderr, "Error in file hash-table.c, line %d\n", __LINE__);
         perror("malloc");
+        h.n = 0;
         return h;
     }
     for(i = 0; i < h.n; i++)

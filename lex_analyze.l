@@ -1,8 +1,12 @@
-%option noyywrap yylineno
+%{
+#include "header.h"
+#include "compiler.tab.h"
+%}
+%option noyywrap yylineno nounput noinput
 
     char *get_or_insert(hashtable, char *);
     int getvalue(char *);
-    extern hashtable htable;
+    #define YY_DECL int yylex(hashtable htable)
     
 %%
 
@@ -38,8 +42,8 @@
 [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
 [-+*/%=()<>,]   { return yytext[0]; }
 
-[ \t\f\n]       ;
-[^ \t\f\n]      { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
+[ \t\f\n]+      ;
+.               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
 
 %%
 #include "header.h"
@@ -64,4 +68,8 @@ int getvalue(char *keyword){
     else if(!strcmp(keyword, "ROBOT") || !strcmp(keyword, "LEFT"))
         return 4;
     return INT_MIN;
+}
+
+void yy_flush(){
+    YY_FLUSH_BUFFER;
 }

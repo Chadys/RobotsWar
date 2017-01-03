@@ -4,14 +4,16 @@
 # define YYDEBUG 1
 
 int yylex();
-void yyerror(FILE*, const char *);
+void yyerror(FILE*, hashtable, const char *);
 char tab[MAX_TAB] = {'\t','\0'};
 void update_tab(char);
 extern int yylineno;
+void yy_flush();
 
 %}
 
 %parse-param {FILE * current_p_file}
+%param {hashtable htable}
 
 %union {
   int i;
@@ -25,7 +27,7 @@ extern int yylineno;
 %token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YELSE YENDELSE YWHILE YENDWHILE YLIFE YSCORE YNRJ
 %token RESERVED_KEYWORD UNRECOGNISED
 
-%left ','
+%precedence ','
 %left '+' '-'
 %left '*' '/' '%'
 %precedence UNARY
@@ -38,11 +40,11 @@ instrlist : instr
     | instrlist instr
     
 instr : YVAR YNOM
-                { fprintf(current_p_file, "%sint %s;\nYCHECKTIMER(1);\n", tab, $2); }
+                { fprintf(current_p_file, "%sint %s;\n%sYCHECKTIMER(1);\n", tab, $2, tab); }
     | YNOM '='
                 { fprintf(current_p_file, "%s%s = ", tab, $1); }
        value
-                { fprintf(current_p_file, ";\nYCHECKTIMER(3);\n"); }
+                { fprintf(current_p_file, ";\n%sYCHECKTIMER(3);\n", tab); }
     | whilexpr
     | ifexpr
     | action
@@ -98,11 +100,11 @@ whileinstr : YLOOP
                 { fprintf(current_p_file, "%s%s;\n", tab, $1); }
     | ifinwhileexpr
     | YVAR YNOM
-                { fprintf(current_p_file, "%sint %s;\nYCHECKTIMER(1);\n", tab, $2); }
+                { fprintf(current_p_file, "%sint %s;\n%sYCHECKTIMER(1);\n", tab, $2, tab); }
     | YNOM '='
                 { fprintf(current_p_file, "%s%s = ", tab, $1); }
        value
-                { fprintf(current_p_file, ";\nYCHECKTIMER(1);\n"); }
+                { fprintf(current_p_file, ";\n%sYCHECKTIMER(1);\n", tab); }
     | whilexpr
     | action
     
@@ -160,16 +162,14 @@ cond : value YTEST
         value
 %%
 
-# include "lex.yy.c"
-
-void yyerror(FILE  __attribute__ ((unused))*current_p_file, const char * message){
+void yyerror(FILE  __attribute__ ((unused))*current_p_file, hashtable __attribute__ ((unused))htable, const char * message){
   extern char * yytext;
 
   fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);
   yylineno = 1;
   while(tab[1] != '\0')
     update_tab(0);
-  YY_FLUSH_BUFFER;
+  yy_flush();
 }
 
 void update_tab(char add){
