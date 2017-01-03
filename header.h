@@ -172,12 +172,18 @@ char update_energy(unsigned int *, player*);
 //lexical analyser
 void yy_init_parser(char*,size_t);
 void yy_flush();
+void yy_change_start_condition(int);
+
+/* lex.check.c */
+//lexical analyser to check code's correctness only
+void check_init_parser(char*,size_t);
+void check_flush();
 
 /* compiler.tab.c */
 // compiler's parsing
 int yyparse();
 
-/* compiler.tab.c */
+/* lexical_checker.tab.c */
 // compiler's parsing but only to check codes' correctness
 int checkparse();
 

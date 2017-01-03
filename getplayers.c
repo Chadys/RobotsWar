@@ -232,8 +232,8 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
         return 0;
     }
 	joueur->loc=c;
-    yy_init_parser(joueur->code, joueur->sizecode);
-	if(!checkparse(joueur, keywords)){
+    check_init_parser(joueur->code, joueur->sizecode);
+	if(!checkparse()){
 		add=malloc(sizeof(cellplay));
 		if (!add){
 			fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
