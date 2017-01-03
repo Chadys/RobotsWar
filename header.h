@@ -98,7 +98,22 @@ struct butin{
 	struct butin * next;
 };
 typedef struct butin butin;
-typedef struct butin * listbutin;
+typedef butin * listbutin;
+
+/* while stack */
+typedef struct whilecell{
+    unsigned int index;
+    unsigned int unclosed_if;
+    struct whilecell *next;
+} whilecell;
+typedef whilecell *whilestack;
+
+/* state stack */
+typedef struct statecell{
+    int state;
+    struct statecell *next;
+} statecell;
+typedef statecell *statestack;
 
 
 /* player's actions enum */
@@ -173,6 +188,10 @@ char update_energy(unsigned int *, player*);
 void yy_init_parser(char*,size_t);
 void yy_flush();
 void yy_change_start_condition(int);
+void yy_clean();
+void yy_new_while(unsigned int);
+void yy_delete_while(unsigned int);
+void yy_loop(player *);
 
 /* lex.check.c */
 //lexical analyser to check code's correctness only

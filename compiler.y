@@ -23,8 +23,8 @@ void yyfinish();
 
 %token <c> YNOM
 %token <s> YTEST YCOND
-%token <i> YNUM YDIR YSPRINT YBACK
-%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YWHILE YENDWHILE YLIFE YSCORE YNRJ
+%token <i> YNUM YDIR YSPRINT YBACK YWHILE
+%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YENDWHILE YLIFE YSCORE YNRJ
 %token UNRECOGNISED
 
 %precedence ','
@@ -36,7 +36,7 @@ void yyfinish();
 
 %%
 program : instrlist
-                { yylineno = 1; }
+                { yyfinish(); }
 
 instrlist : .instr
     | instrlist .instr
@@ -76,13 +76,25 @@ value : YNUM
                 { $$ = joueur->energy; }
                 
 whilexpr : YWHILE condlist
-                { if (!$2) yy_change_start_condition(4); } //jump_while
+                {   if (!$2){
+                        yy_change_start_condition(4); //jump_while
+                        yy_delete_while($1);
+                    }
+                    else
+                        yy_new_while($1); //do_while
+                }
             instrlist YENDWHILE
-                {  }
+                { if ($2) yy_loop(joueur); }
     | YWHILE condlist
-                { if (!$2) yy_change_start_condition(4); } //jump_while
+                {   if (!$2){
+                        yy_change_start_condition(4); //jump_while
+                        yy_delete_while($1);
+                    }
+                    else
+                        yy_new_while($1); //do_while
+                }
             YENDWHILE
-                {  }
+                { if ($2) yy_loop(joueur); }
     
 ifexpr : YIF condlist
             { if (!$2) yy_change_start_condition(1); } //jump_if
@@ -139,11 +151,15 @@ cond : value YTEST value
                 { $$ = $1 > $3; }
 %%
 
-void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((unused))keywords, const char  __attribute__ ((unused))*message){
-  return;
+void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((unused))keywords, const char *message){
+  extern char * yytext;
+
+  fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);
+  yyfinish();
 }
 
 void yyfinish(){
   yylineno = 1;
   yy_flush();
+  yy_clean();
 }

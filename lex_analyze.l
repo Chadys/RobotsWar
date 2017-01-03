@@ -3,7 +3,7 @@
 #include "compiler.tab.h"
 %}
 %option noyywrap yylineno nounput noinput
-%x jump_if do_else jump_else jump_while
+%x jump_if jump_else do_else jump_while do_while
 
     int getvalue(char *);
     #define YY_DECL int yylex(player *joueur, hashtable keywords)
@@ -12,13 +12,33 @@
     static unsigned int nif;
     static unsigned int nelse;
     static unsigned int nwhile;
-    static unsigned int unclosed_if;
+    static whilestack pilewhile = NULL;
     
 %%
 
 "else"          { BEGIN(jump_else); }
 
-<INITIAL,do_else>{
+<do_while>{
+    "if"            { pilewhile->unclosed_if++; return YIF; }
+    "endif"         { pilewhile->unclosed_if--; return YENDIF; }
+    "endwhile"      { return YENDWHILE; }
+    "continue"      {   if(pilewhile->unclosed_if){
+                            pilewhile->unclosed_if--;
+                            yyless(0);
+                            return YENDIF;
+                        }
+                        return YENDWHILE;
+                    }
+    "break"         {   if(pilewhile->unclosed_if){
+                            pilewhile->unclosed_if--;
+                            yyless(0);
+                            return YENDIF;
+                        }
+                        BEGIN(jump_while);
+                    }
+}
+
+<INITIAL,do_else,do_while>{
     "<="|">="|"!="|"==" { yylval.s = get_or_insert(keywords, yytext)->name; return YTEST; }
     "&&"|"||"       { yylval.s = get_or_insert(keywords, yytext)->name; return YCOND; }
 
@@ -37,11 +57,9 @@
     "Score"         { return YSCORE; }
     "Energy"        { return YNRJ; }
 
-    "if"            { unclosed_if++; return YIF; }
+    "if"            { return YIF; }
     "endif"         { return YENDIF; }
-    "while"         { return YWHILE; }
-    "endwhile"|"continue"      { return YENDWHILE; }
-    "break"         { BEGIN(jump_while); }
+    "while"         { yylval.i = letter_index-5; return YWHILE; }
 
     (?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
     [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
@@ -115,19 +133,28 @@ int getvalue(char *keyword){
 }
 
 void yy_init_parser(char *code, size_t size){
-
+    
     letter_index = 0;
     nif = 0;
     nelse = 0;
     nwhile = 0;
-    unclosed_if = 0;
+    BEGIN(INITIAL);
+    
     yy_delete_buffer( YY_CURRENT_BUFFER );
     if(!yy_scan_buffer(code, size)){
         fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
         perror("yy_scan_buffer");
     }
 }
-
+void yy_clean(){
+    whilestack tmp;
+    
+    while(pilewhile){
+        tmp = pilewhile;
+        pilewhile = pilewhile->next;
+        free(tmp);
+    }
+}
 void yy_flush(){
     YY_FLUSH_BUFFER;
 }
@@ -135,3 +162,49 @@ void yy_flush(){
 void yy_change_start_condition(int cond){
     BEGIN(cond);
 }
+
+void yy_new_while(unsigned int index){
+    whilestack tmp;
+    
+    BEGIN(do_while);
+    if(pilewhile && pilewhile->index == index)
+        return;
+    tmp = malloc(sizeof(whilecell));
+    if(!tmp){
+        fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
+        perror("malloc");
+        return;
+    }
+    tmp->index = index;
+    tmp->unclosed_if = 0;
+    tmp->next = pilewhile;
+    pilewhile = tmp;
+}
+
+void yy_delete_while(unsigned int index){
+    whilestack tmp;
+
+    if(pilewhile && pilewhile->index == index){
+        tmp = pilewhile;
+        pilewhile = pilewhile->next;
+        free(tmp);
+    }
+}
+
+void yy_loop(player *joueur){
+    if(!pilewhile){
+        fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
+        perror("loop");
+        return;
+    }
+    BEGIN(INITIAL);
+    YY_FLUSH_BUFFER;
+    
+    yy_delete_buffer( YY_CURRENT_BUFFER );
+    if(!yy_scan_buffer(joueur->code+pilewhile->index, joueur->sizecode-pilewhile->index)){
+        fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
+        perror("yy_scan_buffer");
+    }
+}
+
+/* TODO add start state stack instead of using initial*/
