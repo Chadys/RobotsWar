@@ -81,11 +81,9 @@ action : YSNOOZE
     | YGO YDIR
     | YGO YSPRINT
     | YSHOOT value ',' value
-
-condlist : conds
                 
-conds : cond
-    | conds YCOND cond
+condlist : cond
+    | condlist YCOND cond
                 
 cond : value YTEST value
     | value '<' value

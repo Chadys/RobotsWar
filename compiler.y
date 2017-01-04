@@ -32,7 +32,7 @@ void yyfinish();
 %left '*' '/' '%'
 %precedence UNARY
 
-%type <i> value condlist conds cond
+%type <i> value condlist cond
 
 %%
 program : instrlist
@@ -79,6 +79,8 @@ whilexpr : YWHILE condlist
                 {   if (!$2){
                         yy_change_start_condition(4); //jump_while
                         yy_delete_while($1);
+                        yy_rewind();
+                        yyclearin;
                     }
                     else
                         yy_new_while($1); //do_while
@@ -89,6 +91,8 @@ whilexpr : YWHILE condlist
                 {   if (!$2){
                         yy_change_start_condition(4); //jump_while
                         yy_delete_while($1);
+                        yy_rewind();
+                        yyclearin;
                     }
                     else
                         yy_new_while($1); //do_while
@@ -97,10 +101,20 @@ whilexpr : YWHILE condlist
                 { if ($2) yy_loop(joueur); }
     
 ifexpr : YIF condlist
-            { if (!$2) yy_change_start_condition(1); } //jump_if
+                {   if (!$2){
+                        yy_change_start_condition(1); //jump_if
+                        yy_rewind();
+                        yyclearin;
+                    }
+                }
         instrlist YENDIF
     | YIF condlist
-            { if (!$2) yy_change_start_condition(1); } //jump_if
+                {   if (!$2){
+                        yy_change_start_condition(1); //jump_if
+                        yy_rewind();
+                        yyclearin;
+                    }
+                }
         YENDIF
 
 action : YSNOOZE
@@ -116,13 +130,10 @@ action : YSNOOZE
     | YSHOOT value ',' value
                 { create_action(SHOOT, $2, $4, joueur); yyfinish(); YYACCEPT; }
 
-
-condlist : conds
-                { $$ = $1; }
                 
-conds : cond
+condlist : cond
                 { $$ = $1; }
-    | conds YCOND cond
+    | condlist YCOND cond
                 { switch($2[0]){
                     case('&'):
                         $$ = $1 && $3;

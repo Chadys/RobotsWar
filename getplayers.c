@@ -73,7 +73,7 @@ char getplayers(){
 	j=0;
     keywords = init_hash(10);
     if(!keywords.n){
-        fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
         perror("init_hash");
         return 0;
     }
@@ -160,13 +160,13 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 	printf("\nAnalysing file %s :\n",nomjoueur);
 	ligne=calloc(cap+1,sizeof(char));
 	if (!ligne){
-		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("calloc");
 		return 0;
 	}
 	buffer=calloc(cap+1,sizeof(char));
 	if (!buffer){
-		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("calloc");
 		free(ligne);
 		return 0;
@@ -184,7 +184,7 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 			test=realloc(ligne,cap*sizeof(char)+1);
 			ligne=test;
 			if (!test){
-				fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+				fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 				perror("realloc");
 				free(ligne);
 				free(buffer);
@@ -199,7 +199,7 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 
 	joueur=malloc(sizeof(player));
 	if(!joueur){
-		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("malloc");
 		free(ligne);
 		return 0;
@@ -209,7 +209,7 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 	joueur->color=color;
 	joueur->name=strndup(nomjoueur,strlen(nomjoueur)-6); //copie the filename without .robot
 	if (!joueur->name){
-		fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+		fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 		perror("strndup");
 		free(joueur);
 		free(ligne);
@@ -223,7 +223,7 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 	joueur->onbase=1;
 	joueur->variables=init_hash(20);
     if(!joueur->variables.n){
-        fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+        fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
         perror("init_hash");
         free(joueur);
         free(ligne);
@@ -236,7 +236,7 @@ int create_player(FILE * fd, char * nomjoueur, char * color, coord c){
 	if(!checkparse()){
 		add=malloc(sizeof(cellplay));
 		if (!add){
-			fprintf(stderr, "Error in file addplayer.c, line %d\n", __LINE__);
+			fprintf(stderr, "Error in file getplayers.c, line %d\n", __LINE__);
 			perror("malloc");
 			freeplayer(joueur);
 			return 0;

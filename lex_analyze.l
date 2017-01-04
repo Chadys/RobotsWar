@@ -6,6 +6,8 @@
 %x jump_if jump_else do_else jump_while do_while
 
     int getvalue(char *);
+    void yy_change_start_condition(int);
+    void yy_leave_start_condition();
     #define YY_DECL int yylex(player *joueur, hashtable keywords)
     static unsigned int letter_index;
     #define YY_USER_ACTION letter_index+=yyleng;
@@ -13,10 +15,13 @@
     static unsigned int nelse;
     static unsigned int nwhile;
     static whilestack pilewhile = NULL;
+    static statestack pilestate = NULL;
     
 %%
 
-"else"          { BEGIN(jump_else); }
+<*>[ \t\f\n]+       ;
+
+"else"              { yy_change_start_condition(jump_else); }
 
 <do_while>{
     "if"            { pilewhile->unclosed_if++; return YIF; }
@@ -24,17 +29,17 @@
     "endwhile"      { return YENDWHILE; }
     "continue"      {   if(pilewhile->unclosed_if){
                             pilewhile->unclosed_if--;
-                            yyless(0);
+                            yy_rewind();
                             return YENDIF;
                         }
                         return YENDWHILE;
                     }
     "break"         {   if(pilewhile->unclosed_if){
                             pilewhile->unclosed_if--;
-                            yyless(0);
+                            yy_rewind();
                             return YENDIF;
                         }
-                        BEGIN(jump_while);
+                        yy_change_start_condition(jump_while);
                     }
 }
 
@@ -64,20 +69,18 @@
     (?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
     [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
     [-+*/%=()<>,]   { return yytext[0]; }
-
-    [ \t\f\n]+      ;
     .               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
 }
 
 <jump_if>{
     "endif"[ \t\f\n]*/"else" {  if(!nif){
-                                    BEGIN(do_else);
+                                    yy_change_start_condition(do_else);
                                     return YENDIF;
                                 }
                                 nif--;
                             }
     "endif"     {   if(!nif){
-                        BEGIN(INITIAL);
+                        yy_leave_start_condition();
                         return YENDIF;
                     }
                     nif--;
@@ -89,7 +92,7 @@
 <do_else,jump_else>{
     "else"      { nelse++; }
     "endelse"   {   if(!nelse)
-                        BEGIN(INITIAL);
+                        yy_leave_start_condition();
                     else
                         nelse--;
                 }
@@ -101,7 +104,7 @@
 <jump_while>{
     "while"     { nwhile++; }
     "endwhile"  {   if(!nwhile){
-                        BEGIN(INITIAL);
+                        yy_leave_start_condition();
                         return YENDWHILE;
                     }
                     nwhile--;
@@ -148,11 +151,17 @@ void yy_init_parser(char *code, size_t size){
 }
 void yy_clean(){
     whilestack tmp;
+    statestack tmp2;
     
     while(pilewhile){
         tmp = pilewhile;
         pilewhile = pilewhile->next;
         free(tmp);
+    }
+    while(pilestate){
+        tmp2 = pilestate;
+        pilestate = pilestate->next;
+        free(tmp2);
     }
 }
 void yy_flush(){
@@ -160,13 +169,38 @@ void yy_flush(){
 }
 
 void yy_change_start_condition(int cond){
+    statestack tmp;
+    
+    tmp = malloc(sizeof(statecell));
+    if(!tmp){
+        fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
+        perror("malloc");
+        return;
+    }
+    tmp->state = YY_START;
+    tmp->next = pilestate;
+    pilestate = tmp;
     BEGIN(cond);
+}
+
+void yy_leave_start_condition(){
+    statestack tmp;
+    
+    if(!pilestate){
+        fprintf(stderr, "Trying to leave a state while none has been saved\n");
+        return;
+    }
+    tmp = pilestate;
+    pilestate = pilestate->next;
+    BEGIN(tmp->state);
+    free(tmp);
+    
 }
 
 void yy_new_while(unsigned int index){
     whilestack tmp;
     
-    BEGIN(do_while);
+    yy_change_start_condition(do_while);
     if(pilewhile && pilewhile->index == index)
         return;
     tmp = malloc(sizeof(whilecell));
@@ -178,6 +212,7 @@ void yy_new_while(unsigned int index){
     tmp->index = index;
     tmp->unclosed_if = 0;
     tmp->next = pilewhile;
+    tmp->state = pilestate;
     pilewhile = tmp;
 }
 
@@ -192,13 +227,22 @@ void yy_delete_while(unsigned int index){
 }
 
 void yy_loop(player *joueur){
+    statestack tmp;
+    
     if(!pilewhile){
         fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
         perror("loop");
         return;
     }
-    BEGIN(INITIAL);
+    while(pilestate && pilestate != pilewhile->state){
+        tmp = pilestate;
+        pilestate = pilestate->next;
+        free(tmp);
+    }
+    yy_leave_start_condition();
     YY_FLUSH_BUFFER;
+    
+    letter_index = pilewhile->index;
     
     yy_delete_buffer( YY_CURRENT_BUFFER );
     if(!yy_scan_buffer(joueur->code+pilewhile->index, joueur->sizecode-pilewhile->index)){
@@ -207,4 +251,9 @@ void yy_loop(player *joueur){
     }
 }
 
-/* TODO add start state stack instead of using initial*/
+void yy_rewind(){
+    letter_index-=yyleng;
+    yyless(0);
+}
+
+/* TODO add timer */

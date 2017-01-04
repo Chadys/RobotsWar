@@ -100,13 +100,6 @@ struct butin{
 typedef struct butin butin;
 typedef butin * listbutin;
 
-/* while stack */
-typedef struct whilecell{
-    unsigned int index;
-    unsigned int unclosed_if;
-    struct whilecell *next;
-} whilecell;
-typedef whilecell *whilestack;
 
 /* state stack */
 typedef struct statecell{
@@ -114,6 +107,15 @@ typedef struct statecell{
     struct statecell *next;
 } statecell;
 typedef statecell *statestack;
+
+/* while stack */
+typedef struct whilecell{
+    unsigned int index;
+    unsigned int unclosed_if;
+    statestack state;
+    struct whilecell *next;
+} whilecell;
+typedef whilecell *whilestack;
 
 
 /* player's actions enum */
@@ -192,6 +194,7 @@ void yy_clean();
 void yy_new_while(unsigned int);
 void yy_delete_while(unsigned int);
 void yy_loop(player *);
+void yy_rewind();
 
 /* lex.check.c */
 //lexical analyser to check code's correctness only
