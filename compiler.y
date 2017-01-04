@@ -78,29 +78,29 @@ value : YNUM
                 
 whilexpr : YWHILE condlist
                 {   if (!$2){
+                        yy_rewind();
                         yy_change_start_condition(4); //jump_while
                         yy_delete_while($1);
-                        yy_rewind();
                         yychar = YPASS;
                     }
                     else{
-                        yy_new_while($1); //do_while
                         yy_rewind();
+                        yy_new_while($1); //do_while
                         yyclearin;
                     }
                 }
             instrlist YENDWHILE
                 {   if ($2){
-                        yy_loop(joueur);
                         yy_rewind();
+                        yy_loop(joueur);
                         yyclearin;
                     }
                 }
     
 ifexpr : YIF condlist
                 {   if (!$2){
-                        yy_change_start_condition(1); //jump_if
                         yy_rewind();
+                        yy_change_start_condition(1); //jump_if
                         yychar = YPASS;
                     }
                 }
@@ -160,6 +160,5 @@ void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((u
 
 void yyfinish(){
   yylineno = 1;
-  yy_flush();
   yy_clean();
 }

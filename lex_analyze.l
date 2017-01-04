@@ -16,6 +16,7 @@
     static unsigned int nwhile;
     static whilestack pilewhile = NULL;
     static statestack pilestate = NULL;
+    static char add_pass = 1;
     
 %%
 
@@ -29,14 +30,26 @@
     "endwhile"      { return YENDWHILE; }
     "continue"      {   if(pilewhile->unclosed_if){
                             pilewhile->unclosed_if--;
-                            yy_rewind();
+                            letter_index-=yyleng;
+                            yyless(0);
+                            if(add_pass){
+                                add_pass--;
+                                return YPASS; //to avoid ending an if without any instr
+                            }
+                            add_pass++;
                             return YENDIF;
                         }
                         return YENDWHILE;
                     }
     "break"         {   if(pilewhile->unclosed_if){
                             pilewhile->unclosed_if--;
-                            yy_rewind();
+                            letter_index-=yyleng;
+                            yyless(0);
+                            if(add_pass){
+                                add_pass--;
+                                return YPASS; //to avoid ending an if without any instr
+                            }
+                            add_pass++;
                             return YENDIF;
                         }
                         yy_change_start_condition(jump_while);
@@ -64,51 +77,60 @@
 
     "if"            { return YIF; }
     "endif"         { return YENDIF; }
-    "while"         { yylval.i = letter_index-5; return YWHILE; }
+    "while"         { yylval.i = letter_index-yyleng; return YWHILE; }
 
-    (?i:[a-z][a-z0-9_]*)        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
-    [0-9]+          { yylval.i = atoi(yytext); return YNUM;    }
+    [[:alpha:]][[:alnum:]_]*        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
+    [[:digit:]]+          { yylval.i = atoi(yytext); return YNUM;    }
     [-+*/%=()<>,]   { return yytext[0]; }
     .               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
 }
 
 <jump_if>{
-    "endif"[ \t\f\n]*/"else" {  if(!nif){
-                                    yy_change_start_condition(do_else);
-                                    return YENDIF;
+    "endif"[ \t\f\n]*/"else"    {   if(pilestate->state == do_while)
+                                        pilewhile->unclosed_if--;
+                                    if(!nif){
+                                        yy_change_start_condition(do_else);
+                                        return YENDIF;
+                                    }
+                                    nif--;
                                 }
-                                nif--;
-                            }
-    "endif"     {   if(!nif){
-                        yy_leave_start_condition();
-                        return YENDIF;
+    "endif"         {   if(pilestate->state == do_while)
+                            pilewhile->unclosed_if--;
+                        if(!nif){
+                            yy_leave_start_condition();
+                            return YENDIF;
+                        }
+                        nif--;
                     }
-                    nif--;
-                }
-    "if"        { nif++; }
-    .           ;
+    "if"            {   if(pilestate->state == do_while)
+                            pilewhile->unclosed_if++;
+                        nif++; 
+                    }
+    [^ifend]+|.     ;
 }
 
 <do_else,jump_else>{
-    "else"      { nelse++; }
-    "endelse"   {   if(!nelse)
-                        yy_leave_start_condition();
-                    else
-                        nelse--;
-                }
+    "else"          { nelse++; }
+    "endelse"       {   if(!nelse)
+                            yy_leave_start_condition();
+                        else
+                            nelse--;
+                    }
 }
 
-<jump_else>.           ;
+<jump_else>[^elsnd]+|.  ;
+
 
 
 <jump_while>{
-    "while"     { nwhile++; }
-    "endwhile"  {   if(!nwhile){
-                        yy_leave_start_condition();
-                        return YENDWHILE;
+    "while"         { nwhile++; }
+    "endwhile"      {   if(!nwhile){
+                            yy_leave_start_condition();
+                            return YENDWHILE;
+                        }
+                        nwhile--;
                     }
-                    nwhile--;
-                }
+    [^whilend]+|.   ;
 }
 
 %%
@@ -164,9 +186,6 @@ void yy_clean(){
         free(tmp2);
     }
 }
-void yy_flush(){
-    YY_FLUSH_BUFFER;
-}
 
 void yy_change_start_condition(int cond){
     statestack tmp;
@@ -202,7 +221,7 @@ void yy_new_while(unsigned int index){
     
     yy_change_start_condition(do_while);
     if(pilewhile && pilewhile->index == index)
-        return;
+            return;
     tmp = malloc(sizeof(whilecell));
     if(!tmp){
         fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
@@ -240,12 +259,11 @@ void yy_loop(player *joueur){
         free(tmp);
     }
     yy_leave_start_condition();
-    YY_FLUSH_BUFFER;
     
     letter_index = pilewhile->index;
     
     yy_delete_buffer( YY_CURRENT_BUFFER );
-    if(!yy_scan_buffer(joueur->code+pilewhile->index, joueur->sizecode-pilewhile->index)){
+    if(!yy_scan_buffer(joueur->code+letter_index, joueur->sizecode-letter_index)){
         fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
         perror("yy_scan_buffer");
     }
@@ -253,6 +271,8 @@ void yy_loop(player *joueur){
 
 void yy_rewind(){
     letter_index-=yyleng;
+    if(pilestate && pilestate->state == do_while && !strcmp(yytext, "if"))
+        pilewhile->unclosed_if--;
     yyless(0);
 }
 
