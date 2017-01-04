@@ -2,7 +2,7 @@ CSRC = actions.c gamemotor.c getplayers.c level.c main.c onquit.c vision.c playe
 SRC = $(CSRC) lex_analyze.l compiler.y
 OBJ = $(CSRC:.c=.o) compiler.tab.o lex.yy.o
 CC = gcc
-CFLAGS = -Wall -W -g
+CFLAGS = -Wall -W -g -Wno-sign-compare
 BFLAGS = --warnings=all -v -d
 LFLAGs = -s
 
