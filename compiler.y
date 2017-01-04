@@ -24,7 +24,7 @@ void yyfinish();
 %token <c> YNOM
 %token <s> YTEST YCOND
 %token <i> YNUM YDIR YSPRINT YBACK YWHILE
-%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YENDWHILE YLIFE YSCORE YNRJ
+%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YENDWHILE YLIFE YSCORE YNRJ YPASS
 %token UNRECOGNISED
 
 %precedence ','
@@ -47,6 +47,7 @@ instrlist : .instr
     | whilexpr
     | ifexpr
     | action
+    | YPASS
     
 value : YNUM
                 { $$ = $1; }
@@ -80,42 +81,30 @@ whilexpr : YWHILE condlist
                         yy_change_start_condition(4); //jump_while
                         yy_delete_while($1);
                         yy_rewind();
-                        yyclearin;
+                        yychar = YPASS;
                     }
-                    else
+                    else{
                         yy_new_while($1); //do_while
-                }
-            instrlist YENDWHILE
-                { if ($2) yy_loop(joueur); }
-    | YWHILE condlist
-                {   if (!$2){
-                        yy_change_start_condition(4); //jump_while
-                        yy_delete_while($1);
                         yy_rewind();
                         yyclearin;
                     }
-                    else
-                        yy_new_while($1); //do_while
                 }
-            YENDWHILE
-                { if ($2) yy_loop(joueur); }
+            instrlist YENDWHILE
+                {   if ($2){
+                        yy_loop(joueur);
+                        yy_rewind();
+                        yyclearin;
+                    }
+                }
     
 ifexpr : YIF condlist
                 {   if (!$2){
                         yy_change_start_condition(1); //jump_if
                         yy_rewind();
-                        yyclearin;
+                        yychar = YPASS;
                     }
                 }
         instrlist YENDIF
-    | YIF condlist
-                {   if (!$2){
-                        yy_change_start_condition(1); //jump_if
-                        yy_rewind();
-                        yyclearin;
-                    }
-                }
-        YENDIF
 
 action : YSNOOZE
                 { create_action(SNOOZE, 0, 0, joueur); yyfinish(); YYACCEPT; }
