@@ -93,7 +93,7 @@
 }
 
 <jump_if>{
-    "endif"[ \t\f\n]*/"else"    {   if(pilestate->state == do_while)
+    "endif"[ \t\f\n]*"else"    {   if(pilestate->state == do_while)
                                         pilewhile->unclosed_if--;
                                     if(!nif){
                                         yy_change_start_condition(do_else);
@@ -243,7 +243,7 @@ void yy_new_while(unsigned int index){
     }
     tmp->index = index;
     tmp->unclosed_if = 0;
-    tmp->line = yylineno;
+    tmp->line = yylineno-1;
     tmp->next = pilewhile;
     tmp->state = pilestate;
     pilewhile = tmp;
@@ -290,5 +290,3 @@ void yy_rewind(){
         pilewhile->unclosed_if--;
     yyless(0);
 }
-
-/* TODO add timer */
