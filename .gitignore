@@ -8,6 +8,8 @@ core
 *.o
 *.output
 *.so
+*.tab.*
+*.output
 
 #IDE
 *.kdev4
