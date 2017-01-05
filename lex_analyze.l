@@ -59,43 +59,57 @@
                             add_pass++;
                             return YENDIF;
                         }
+                        yy_leave_start_condition();
                         yy_change_start_condition(jump_while);
                     }
 }
 
-<INITIAL,do_else,do_while>{
-    "<="|">="|"!="|"==" { yylval.s = get_or_insert(keywords, yytext)->name; return YTEST; }
-    "&&"|"||"       { yylval.s = get_or_insert(keywords, yytext)->name; return YCOND; }
-
-    "var"           { return YVAR; }
-    "Look"          { return YLOOK; }
-    "Shoot"         { return YSHOOT; }
-    "TurnAround"    { return YTURN; }
-    "Go"            { return YGO; }
-    "Snooze"        { return YSNOOZE; }
-
-    "LEFT"|"RIGHT"|"FORWARD"    { yylval.i = getvalue(yytext); return YDIR; }
-    "SPRINT"        { yylval.i = 5; return YSPRINT; }
-    "BACK"          { yylval.i = 3; return YBACK; }
-    "GAMELIMIT"|"NORESULT"|"NOTHING"|"WALL"|"TREASURE"|"BASE"|"ROBOT"|"VISIONMAX"   { yylval.i = getvalue(yytext); return YNUM; }
-    "Life"          { return YLIFE; }
-    "Score"         { return YSCORE; }
-    "Energy"        { return YNRJ; }
-
-    "if"            { return YIF; }
-    "endif"         { return YENDIF; }
-    "while"         { yylval.i = letter_index-yyleng; return YWHILE; }
-
-    [[:alpha:]][[:alnum:]_]*        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
-    [[:digit:]]+          { yylval.i = atoi(yytext); return YNUM;    }
-    [-+*/%=()<>,]   { return yytext[0]; }
-    .               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
+<do_else>{
+    "continue"      {   if(pilestate && pilestate->state == do_while){
+                            if(pilewhile->unclosed_if){
+                                letter_index-=yyleng;
+                                yyless(0);
+                                if(add_pass){
+                                    add_pass--;
+                                    return YPASS; //to avoid ending an if without any instr
+                                }
+                                pilewhile->unclosed_if--;
+                                add_pass++;
+                                return YENDIF;
+                            }
+                            if(add_pass){
+                                letter_index-=yyleng;
+                                yyless(0);
+                                add_pass--;
+                                return YPASS; //to avoid ending a while without any instr
+                            }
+                            add_pass++;
+                            return YENDWHILE;
+                        }
+                    }
+    "break"         {   if(pilestate && pilestate->state == do_while){
+                            if(pilewhile->unclosed_if){
+                                pilewhile->unclosed_if--;
+                                letter_index-=yyleng;
+                                yyless(0);
+                                if(add_pass){
+                                    add_pass--;
+                                    return YPASS; //to avoid ending an if without any instr
+                                }
+                                add_pass++;
+                                return YENDIF;
+                            }
+                            yy_leave_start_condition();
+                            yy_change_start_condition(jump_while);
+                        }
+                    }
 }
 
 <jump_if>{
     "endif"[ \t\f\n]*"else"    {   if(pilestate->state == do_while)
                                         pilewhile->unclosed_if--;
                                     if(!nif){
+                                        yy_leave_start_condition();
                                         yy_change_start_condition(do_else);
                                         return YENDIF;
                                     }
@@ -132,7 +146,6 @@
 <jump_while>{
     "while"         { nwhile++; }
     "endwhile"      {   if(!nwhile){
-                            yy_leave_start_condition();
                             return YENDWHILE;
                         }
                         nwhile--;
@@ -143,6 +156,35 @@
 <loop>{
     (.|\n)*         ;
     <<EOF>>         { yy_loop(joueur); }
+}
+
+<INITIAL,do_else,do_while>{
+    "<="|">="|"!="|"==" { yylval.s = get_or_insert(keywords, yytext)->name; return YTEST; }
+    "&&"|"||"       { yylval.s = get_or_insert(keywords, yytext)->name; return YCOND; }
+
+    "var"           { return YVAR; }
+    "Look"          { return YLOOK; }
+    "Shoot"         { return YSHOOT; }
+    "TurnAround"    { return YTURN; }
+    "Go"            { return YGO; }
+    "Snooze"        { return YSNOOZE; }
+
+    "LEFT"|"RIGHT"|"FORWARD"    { yylval.i = getvalue(yytext); return YDIR; }
+    "SPRINT"        { yylval.i = 5; return YSPRINT; }
+    "BACK"          { yylval.i = 3; return YBACK; }
+    "GAMELIMIT"|"NORESULT"|"NOTHING"|"WALL"|"TREASURE"|"BASE"|"ROBOT"|"VISIONMAX"   { yylval.i = getvalue(yytext); return YNUM; }
+    "Life"          { return YLIFE; }
+    "Score"         { return YSCORE; }
+    "Energy"        { return YNRJ; }
+
+    "if"            { return YIF; }
+    "endif"         { return YENDIF; }
+    "while"         { yylval.i = letter_index-yyleng; return YWHILE; }
+
+    [[:alpha:]][[:alnum:]_]*        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
+    [[:digit:]]+          { yylval.i = atoi(yytext); return YNUM;    }
+    [-+*/%=()<>,]   { return yytext[0]; }
+    .               { fprintf(stderr, "yylex : Unrecognised symbol (%c)\n", yytext[0]); return UNRECOGNISED; }
 }
 
 %%

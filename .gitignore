@@ -1,7 +1,7 @@
 ]
 *_robot.c
 *.tab.*
-lex.yy.c
+lex.*.c
 robotswar
 core
 *~

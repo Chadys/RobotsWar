@@ -21,7 +21,7 @@
 #define MAX_VISION 10 //range of a robot's field of view
 #define MAX_ENERGY 6 //starting number of a robot's energy units
 #define MAX_TURN 50 //number of turn max in a game
-#define MAX_TIMER 500 //interval of read word in a player code before the robot lose 1 energy unit
+#define MAX_TIMER 1000 //interval of read word in a player code before the robot lose 1 energy unit
 #define DELAY_ACTION 150000000 //pause delay between each player's action
 #define DELAY_TURN 100000000 //pause delay between each game turn
 
@@ -190,6 +190,7 @@ char update_energy(unsigned int *, player*);
 void yy_init_parser(char*,size_t);
 void yy_flush();
 void yy_change_start_condition(int);
+void yy_leave_start_condition();
 void yy_clean();
 void yy_new_while(unsigned int);
 void yy_delete_while(unsigned int);

@@ -100,6 +100,7 @@ whilexpr : YWHILE condlist
             instrlist YENDWHILE
                 {   if ($2){
                         yy_rewind();
+                        yy_leave_start_condition();
                         yy_change_start_condition(6); //loop
                         yyclearin;
                     }
