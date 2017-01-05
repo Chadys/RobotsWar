@@ -7,6 +7,7 @@ sigjmp_buf sigebuf;
 //Do nothing if the code produce an error (like a division by 0)
 void activate(player *joueur){
     int i;
+    printf("%s\n", joueur->name);
     
     reading=1;
     i = sigsetjmp(sigebuf, 1);

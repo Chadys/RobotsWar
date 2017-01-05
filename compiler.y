@@ -92,7 +92,7 @@ whilexpr : YWHILE condlist
             instrlist YENDWHILE
                 {   if ($2){
                         yy_rewind();
-                        yy_loop(joueur);
+                        yy_change_start_condition(6); //loop
                         yyclearin;
                     }
                 }

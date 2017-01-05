@@ -3,7 +3,7 @@
 #include "compiler.tab.h"
 %}
 %option noyywrap yylineno nounput noinput
-%x jump_if jump_else do_else jump_while do_while
+%x jump_if jump_else do_else jump_while do_while loop
 
     int getvalue(char *);
     void yy_change_start_condition(int);
@@ -29,16 +29,23 @@
     "endif"         { pilewhile->unclosed_if--; return YENDIF; }
     "endwhile"      { return YENDWHILE; }
     "continue"      {   if(pilewhile->unclosed_if){
-                            pilewhile->unclosed_if--;
                             letter_index-=yyleng;
                             yyless(0);
                             if(add_pass){
                                 add_pass--;
                                 return YPASS; //to avoid ending an if without any instr
                             }
+                            pilewhile->unclosed_if--;
                             add_pass++;
                             return YENDIF;
                         }
+                        if(add_pass){
+                            letter_index-=yyleng;
+                            yyless(0);
+                            add_pass--;
+                            return YPASS; //to avoid ending a while without any instr
+                        }
+                        add_pass++;
                         return YENDWHILE;
                     }
     "break"         {   if(pilewhile->unclosed_if){
@@ -133,6 +140,11 @@
     [^whilend]+|.   ;
 }
 
+<loop>{
+    ([.\n])*        ;
+    <<EOF>>         { yy_loop(joueur); }
+}
+
 %%
 
 /* getvalue -- renvoie la valeur correspondante à un mot-clef */
@@ -163,6 +175,7 @@ void yy_init_parser(char *code, size_t size){
     nif = 0;
     nelse = 0;
     nwhile = 0;
+    add_pass = 1;
     BEGIN(INITIAL);
     
     yy_delete_buffer( YY_CURRENT_BUFFER );
