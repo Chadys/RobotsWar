@@ -4,7 +4,7 @@ OBJ = $(CSRC:.c=.o) compiler.tab.o lexical_checker.tab.o lex.yy.o lex.check.o
 CC = gcc
 CFLAGS = -Wall -W -g -Wno-sign-compare
 BFLAGS = --warnings=all -v -d
-LFLAGs = -s
+FFLAGS = -s
 
 robotswar:	$(OBJ) header.h compiler.tab.h
 			$(CC) $(OBJ) -o robotswar
@@ -12,10 +12,10 @@ robotswar:	$(OBJ) header.h compiler.tab.h
 
 
 lex.yy.c : lex_analyze.l compiler.tab.h
-	flex $(LFLAGS) lex_analyze.l
+	flex $(FFLAGS) lex_analyze.l
 
 lex.check.c : lex_check.l lexical_checker.tab.h
-	flex $(LFLAGS) lex_check.l
+	flex $(FFLAGS) lex_check.l
 
 
 

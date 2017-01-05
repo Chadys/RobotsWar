@@ -1049,7 +1049,7 @@ YY_RULE_SETUP
 case 28:
 YY_RULE_SETUP
 #line 43 "lex_check.l"
-ECHO;
+YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
 #line 1055 "lex.check.c"
 case YY_STATE_EOF(INITIAL):
