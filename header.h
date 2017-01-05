@@ -25,7 +25,6 @@
 #define DELAY_ACTION 150000000 //pause delay between each player's action
 #define DELAY_TURN 100000000 //pause delay between each game turn
 
-# define YCHECKTIMER(N) timer+=N; if(!update_energy(&timer)) return; //in players' file, check the timer and exit the function if too much time was taken
 
 /* coords */
 struct coord{
@@ -111,6 +110,7 @@ typedef statecell *statestack;
 /* while stack */
 typedef struct whilecell{
     unsigned int index;
+    int line;
     unsigned int unclosed_if;
     statestack state;
     struct whilecell *next;

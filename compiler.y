@@ -7,6 +7,13 @@ void yyerror(player*,hashtable, const char *);
 extern int yylineno;
 int yylex(player*,hashtable);
 void yyfinish();
+static unsigned int timer = 0;
+
+# define YCHECKTIMER(N) timer+=N;\
+                        if(!update_energy(&timer, joueur)){\
+                            yyfinish();\
+                            YYACCEPT;\
+                        }//in players' file, check the timer and exit the function if too much time was taken
 
 %}
 
@@ -42,8 +49,9 @@ instrlist : .instr
     | instrlist .instr
     
 .instr : YVAR YNOM
+                { YCHECKTIMER(1); }
     | YNOM '=' value
-                { $1->val = $3; }
+                { $1->val = $3; YCHECKTIMER(1); }
     | whilexpr
     | ifexpr
     | action
@@ -56,7 +64,7 @@ value : YNUM
     | '(' value ')'
                 { $$ = $2; }
     | YLOOK value ',' value
-                { $$ = ligne(joueur->loc, $2, $4).dir; }
+                { $$ = ligne(joueur->loc, $2, $4).dir; YCHECKTIMER(3); }
     | '-' value %prec UNARY
                 { $$ = -$2; }
     | value '+'value
@@ -121,7 +129,7 @@ action : YSNOOZE
 
                 
 condlist : cond
-                { $$ = $1; }
+                { $$ = $1; YCHECKTIMER(1); }
     | condlist YCOND cond
                 { switch($2[0]){
                     case('&'):
@@ -151,14 +159,15 @@ cond : value YTEST value
                 { $$ = $1 > $3; }
 %%
 
-void yyerror(player __attribute__ ((unused))*joueur, hashtable __attribute__ ((unused))keywords, const char *message){
+void yyerror(player *joueur, hashtable __attribute__ ((unused))keywords, const char *message){
   extern char * yytext;
 
-  fprintf(stderr, "%d: %s at %s\n", yylineno, message, yytext);
+  fprintf(stderr, "%s : %d: %s at %s\n", joueur->name, yylineno, message, yytext);
   yyfinish();
 }
 
 void yyfinish(){
+  timer = 0;
   yylineno = 1;
   yy_clean();
 }

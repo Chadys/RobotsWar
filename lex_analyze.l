@@ -243,6 +243,7 @@ void yy_new_while(unsigned int index){
     }
     tmp->index = index;
     tmp->unclosed_if = 0;
+    tmp->line = yylineno;
     tmp->next = pilewhile;
     tmp->state = pilestate;
     pilewhile = tmp;
@@ -274,6 +275,7 @@ void yy_loop(player *joueur){
     yy_leave_start_condition();
     
     letter_index = pilewhile->index;
+    yylineno = pilewhile->line;
     
     yy_delete_buffer( YY_CURRENT_BUFFER );
     if(!yy_scan_buffer(joueur->code+letter_index, joueur->sizecode-letter_index)){
