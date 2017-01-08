@@ -100,24 +100,6 @@ typedef struct butin butin;
 typedef butin * listbutin;
 
 
-/* state stack */
-typedef struct statecell{
-    int state;
-    struct statecell *next;
-} statecell;
-typedef statecell *statestack;
-
-/* while stack */
-typedef struct whilecell{
-    unsigned int index;
-    int line;
-    unsigned int unclosed_if;
-    statestack state;
-    struct whilecell *next;
-} whilecell;
-typedef whilecell *whilestack;
-
-
 /* player's actions enum */
 typedef enum ACTION{
         SNOOZE,
@@ -188,14 +170,10 @@ char update_energy(unsigned int *, player*);
 /* lex.yy.c */
 //lexical analyser
 void yy_init_parser(char*,size_t);
-void yy_flush();
 void yy_change_start_condition(int);
-void yy_leave_start_condition();
-void yy_clean();
-void yy_new_while(unsigned int);
-void yy_delete_while(unsigned int);
-void yy_loop(player *);
+void yy_loop(player *, unsigned int, int);
 void yy_rewind();
+void yy_end();
 
 /* lex.check.c */
 //lexical analyser to check code's correctness only

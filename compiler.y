@@ -8,7 +8,7 @@ extern int yylineno;
 int yylex(player*,hashtable);
 void yyfinish();
 static unsigned int timer = 0;
-
+    
 # define YCHECKTIMER(N) timer+=N;\
                         if(!update_energy(&timer, joueur)){\
                             yyfinish();\
@@ -24,14 +24,19 @@ static unsigned int timer = 0;
   int i;
   llist c;
   char *s;
+  struct{
+    unsigned int index;
+    int line;
+  } w;
 };
 
 %error-verbose
 
 %token <c> YNOM
 %token <s> YTEST YCOND
-%token <i> YNUM YDIR YSPRINT YBACK YWHILE
-%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YENDWHILE YLIFE YSCORE YNRJ YPASS
+%token <i> YNUM YDIR YSPRINT YBACK
+%token <w> YWHILE
+%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YENDWHILE YLIFE YSCORE YNRJ YNOP
 %token UNRECOGNISED
 
 %precedence ','
@@ -55,7 +60,10 @@ instrlist : .instr
     | whilexpr
     | ifexpr
     | action
-    | YPASS
+    | nope
+    
+nope : YNOP
+    | nope YNOP
     
 value : YNUM
                 { $$ = $1; }
@@ -87,33 +95,28 @@ value : YNUM
 whilexpr : YWHILE condlist
                 {   if (!$2){
                         yy_rewind();
-                        yy_change_start_condition(4); //jump_while
-                        yy_delete_while($1);
-                        yychar = YPASS;
-                    }
-                    else{
-                        yy_rewind();
-                        yy_new_while($1); //do_while
                         yyclearin;
+                        yy_change_start_condition(3); //jump_while
                     }
                 }
             instrlist YENDWHILE
                 {   if ($2){
-                        yy_rewind();
-                        yy_leave_start_condition();
-                        yy_change_start_condition(6); //loop
                         yyclearin;
+                        yy_loop(joueur, $1.index, $1.line); //loop
                     }
+                    else
+                        yy_change_start_condition(0); //initial
                 }
     
 ifexpr : YIF condlist
                 {   if (!$2){
                         yy_rewind();
+                        yyclearin;
                         yy_change_start_condition(1); //jump_if
-                        yychar = YPASS;
                     }
                 }
         instrlist YENDIF
+                { if(!$2) yy_change_start_condition(0); } //initial
 
 action : YSNOOZE
                 { create_action(SNOOZE, 0, 0, joueur); yyfinish(); YYACCEPT; }
@@ -169,6 +172,4 @@ void yyerror(player *joueur, hashtable __attribute__ ((unused))keywords, const c
 
 void yyfinish(){
   timer = 0;
-  yylineno = 1;
-  yy_clean();
 }
