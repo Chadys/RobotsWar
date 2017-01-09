@@ -99,6 +99,12 @@ struct butin{
 typedef struct butin butin;
 typedef butin * listbutin;
 
+/* stock unclosed_if numbers to close them if break or continue in a while */
+typedef struct whilecell{
+    unsigned int unclosed_if;
+    struct whilecell *next;
+} whilecell;
+typedef whilecell *whilestack;
 
 /* player's actions enum */
 typedef enum ACTION{
@@ -174,6 +180,8 @@ void yy_change_start_condition(int);
 void yy_loop(player *, unsigned int, int);
 void yy_rewind();
 void yy_end();
+void yy_clean(int);
+void yy_new_while();
 
 /* lex.check.c */
 //lexical analyser to check code's correctness only

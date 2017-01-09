@@ -8,6 +8,7 @@ extern int yylineno;
 int yylex(player*,hashtable);
 void yyfinish();
 static unsigned int timer = 0;
+extern char delay_nop;
     
 # define YCHECKTIMER(N) timer+=N;\
                         if(!update_energy(&timer, joueur)){\
@@ -34,9 +35,9 @@ static unsigned int timer = 0;
 
 %token <c> YNOM
 %token <s> YTEST YCOND
-%token <i> YNUM YDIR YSPRINT YBACK
+%token <i> YNUM YDIR YSPRINT YBACK YENDWHILE
 %token <w> YWHILE
-%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YENDWHILE YLIFE YSCORE YNRJ YNOP
+%token YVAR YLOOK YSHOOT YTURN YGO YSNOOZE YIF YENDIF YLIFE YSCORE YNRJ YNOP
 %token UNRECOGNISED
 
 %precedence ','
@@ -93,14 +94,20 @@ value : YNUM
                 { $$ = joueur->energy; }
                 
 whilexpr : YWHILE condlist
-                {   if (!$2){
-                        yy_rewind();
-                        yyclearin;
+                {   yy_rewind();
+                    yyclearin;
+                    delay_nop=1;
+                    if (!$2){
                         yy_change_start_condition(3); //jump_while
                     }
+                    else
+                        yy_new_while();
                 }
             instrlist YENDWHILE
-                {   if ($2){
+                {   delay_nop=1;
+                    if($2)
+                        yy_clean(1); //delete one while;
+                    if (!$5){ //mid rule actions are taken into account in $n count
                         yyclearin;
                         yy_loop(joueur, $1.index, $1.line); //loop
                     }
@@ -171,5 +178,6 @@ void yyerror(player *joueur, hashtable __attribute__ ((unused))keywords, const c
 }
 
 void yyfinish(){
+  yy_clean(-1); // free the whole pilewhile
   timer = 0;
 }

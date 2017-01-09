@@ -7,12 +7,15 @@
 
     int getvalue(char *);
     void yy_change_start_condition(int);
+    enum yytokentype yy_close_if();
     #define YY_DECL int yylex(player *joueur, hashtable keywords)
     static unsigned int letter_index;
     #define YY_USER_ACTION letter_index+=yyleng;
     static unsigned int nif;
     static unsigned int nelse;
     static unsigned int nwhile;
+    static whilestack pilewhile = NULL;
+    char delay_nop = 1; //used so the lookahead token after a while cond can't call break or continue
     
 %%
 
@@ -20,8 +23,11 @@
 
 <jump_if>{
     "if"            { nif++; }
-    "endif"[ \t\f\n]*("else")?  {    if(!nif)
+    "endif"[ \t\f\n]*("else")?  {    if(!nif){
+                                        if(pilewhile)
+                                            pilewhile->unclosed_if--;
                                         return YENDIF;
+                                    }
                                     nif--;
                                 }
     [^ifend]+|.     { return YNOP; }
@@ -42,6 +48,7 @@
 <jump_while>{
     "while"         { nwhile++; }
     "endwhile"      {   if(!nwhile){
+                            yylval.i = 1;
                             return YENDWHILE;
                         }
                         nwhile--;
@@ -68,12 +75,34 @@
 "Score"             { return YSCORE; }
 "Energy"            { return YNRJ; }
 
-"if"                { return YIF; }
-"endif"             { return YENDIF; }
+"if"                { if(pilewhile) pilewhile->unclosed_if++; return YIF; }
+"endif"             { if(pilewhile) pilewhile->unclosed_if--; return YENDIF; }
 "else"              { BEGIN(jump_else); }
 "endelse"           ;
 "while"             { yylval.w.index = letter_index-yyleng; yylval.w.line = yylineno; return YWHILE; }
-"endwhile"          { return YENDWHILE; }
+"endwhile"          { yylval.i = 0; return YENDWHILE; }
+"break"             {   if(delay_nop){
+                            delay_nop--;
+                            yy_rewind();
+                            return YNOP;
+                        }
+                        if(!pilewhile->unclosed_if){
+                            BEGIN(jump_while);
+                            return YNOP;
+                        }
+                        return yy_close_if();
+                    }
+"continue"          {   if(delay_nop){
+                            delay_nop--;
+                            yy_rewind();
+                            return YNOP;
+                        }
+                        if(!pilewhile->unclosed_if){
+                            yylval.i = 0;
+                            return YENDWHILE;
+                        }
+                        return yy_close_if();
+                    }
 
 [[:alpha:]][[:alnum:]_]*        { yylval.c = get_or_insert(joueur->variables, yytext); return YNOM; }
 [[:digit:]]+        { yylval.i = atoi(yytext); return YNUM;    }
@@ -111,6 +140,7 @@ void yy_init_parser(char *code, size_t size){
     nelse = 0;
     nwhile = 0;
     yylineno = 1;
+    delay_nop = 1;
     BEGIN(INITIAL);
     
     yy_end();
@@ -146,6 +176,46 @@ void yy_end(){
 }
 
 void yy_rewind(){
+    if(pilewhile && !strcmp(yytext, "if"))
+        pilewhile->unclosed_if--;
     letter_index-=yyleng;
     yyless(0);
+}
+
+void yy_clean(int n){
+    whilestack tmp;
+    
+    while(pilewhile && n){
+        tmp=pilewhile;
+        pilewhile = pilewhile->next;
+        free(tmp);
+        n--;
+    }
+}
+
+void yy_new_while(){
+    whilestack tmp;
+    
+    tmp = malloc(sizeof(whilecell));
+    if(!tmp){
+        fprintf(stderr, "Error in file lex.yy.c, line %d\n", __LINE__);
+        perror("malloc");
+        return;
+    }
+    tmp->unclosed_if = 0;
+    tmp->next = pilewhile;
+    pilewhile = tmp;
+}
+
+enum yytokentype yy_close_if(){
+    static char add_nop = 1;
+    
+    yy_rewind();
+    if(add_nop){
+        add_nop--;
+        return YNOP;
+    }
+    add_nop++;
+    pilewhile->unclosed_if--;
+    return YENDIF; 
 }
